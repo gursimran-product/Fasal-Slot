@@ -1,6 +1,7 @@
-import "dotenv/config";
+import { config } from "dotenv";
+config({ path: ".env.local" });
+
 import bcrypt from "bcryptjs";
-import { pool } from "./pool";
 
 const CENTRES = [
   { name: "Karnal Mandi", district: "Karnal", state: "Haryana" },
@@ -12,6 +13,8 @@ const CROPS = ["wheat", "paddy"];
 const TIME_WINDOWS = ["09:00-11:00", "11:00-13:00", "14:00-16:00"];
 
 async function main() {
+  const { pool } = await import("./pool");
+
   for (const centre of CENTRES) {
     const { rows } = await pool.query(
       `INSERT INTO centres (name, state, district, crops)

@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
-import { pool } from "../db/pool";
+import { pool } from "./db/pool";
 import type { AuthUser } from "@fasal-slot/types";
 
 const ACCESS_TOKEN_TTL = "15m";
@@ -63,4 +63,4 @@ export async function revokeRefreshToken(token: string): Promise<void> {
 }
 
 export const REFRESH_COOKIE_NAME = "refresh_token";
-export const REFRESH_COOKIE_MAX_AGE_MS = REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000;
+export const REFRESH_COOKIE_MAX_AGE_SECONDS = REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60;

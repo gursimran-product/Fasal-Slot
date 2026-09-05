@@ -1,9 +1,14 @@
-import "dotenv/config";
+import { config } from "dotenv";
+config({ path: ".env.local" });
+
 import fs from "node:fs";
 import path from "node:path";
-import { pool } from "./pool";
 
 async function main() {
+  // Deferred so dotenv has loaded .env.local before pool.ts reads DATABASE_URL
+  // (static imports would otherwise execute before the config() call above).
+  const { pool } = await import("./pool");
+
   const migrationsDir = path.join(__dirname, "migrations");
   const files = fs
     .readdirSync(migrationsDir)
