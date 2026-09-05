@@ -85,6 +85,14 @@ export async function createFarmer(
   return mapFarmer(rows[0]);
 }
 
+export async function listFarmersByAgent(agentId: string): Promise<Farmer[]> {
+  const { rows } = await pool.query<FarmerRow>(
+    "SELECT * FROM farmers WHERE agent_id = $1 ORDER BY created_at DESC",
+    [agentId]
+  );
+  return rows.map(mapFarmer);
+}
+
 export async function updateFarmerLanguage(id: string, language: Language): Promise<Farmer | null> {
   const { rows } = await pool.query<FarmerRow>(
     `UPDATE farmers SET language = $1, updated_at = NOW() WHERE id = $2 RETURNING *`,
