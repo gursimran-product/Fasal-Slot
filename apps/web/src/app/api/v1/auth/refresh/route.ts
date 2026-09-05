@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   }
 
   const accessToken = signAccessToken(user);
-  const res = NextResponse.json({ access_token: accessToken });
+  const res = NextResponse.json({ access_token: accessToken, user });
   res.cookies.set(REFRESH_COOKIE_NAME, rotated.token, refreshCookieOptions);
   return res;
 }

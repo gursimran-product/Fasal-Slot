@@ -2,29 +2,33 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Farmer, Language } from "@fasal-slot/types";
+import type { Booking, Language } from "@fasal-slot/types";
 import { useAuth } from "@/lib/auth-context";
+import { useFarmerProfile } from "@/lib/useFarmerProfile";
 import { FarmScene } from "@/components/FarmScene";
 import { CentresList } from "@/components/CentresList";
+import { BookingStatusCard } from "@/components/BookingStatusCard";
 import { LANGUAGES, t } from "@/lib/i18n";
+
+const ACTIVE_STAGES = new Set(["booked", "arrived", "weighed", "accepted"]);
 
 export default function FarmerHomePage() {
   const { user, logout, authFetch } = useAuth();
+  const { farmer, setFarmer } = useFarmerProfile();
   const router = useRouter();
-  const [farmer, setFarmer] = useState<Farmer | null>(null);
+  const [bookings, setBookings] = useState<Booking[] | null>(null);
   const [languageSaving, setLanguageSaving] = useState(false);
 
   useEffect(() => {
     if (!user || user.role !== "farmer") return;
     let cancelled = false;
-
     (async () => {
-      const res = await authFetch(`/farmers/${user.id}`);
-      if (!res.ok) return;
-      const { farmer: profile } = (await res.json()) as { farmer: Farmer };
-      if (!cancelled) setFarmer(profile);
+      const res = await authFetch(`/farmers/${user.id}/bookings`);
+      if (res.ok) {
+        const { bookings: list } = (await res.json()) as { bookings: Booking[] };
+        if (!cancelled) setBookings(list);
+      }
     })();
-
     return () => {
       cancelled = true;
     };
@@ -44,7 +48,7 @@ export default function FarmerHomePage() {
         body: JSON.stringify({ language }),
       });
       if (res.ok) {
-        const { farmer: updated } = (await res.json()) as { farmer: Farmer };
+        const { farmer: updated } = await res.json();
         setFarmer(updated);
       }
     } finally {
@@ -53,6 +57,8 @@ export default function FarmerHomePage() {
   }
 
   const language: Language = farmer?.language ?? "en";
+  const latestBooking = bookings?.[0] ?? null;
+  const hasActiveBooking = latestBooking ? ACTIVE_STAGES.has(latestBooking.stage) : false;
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-white px-6 py-10">
@@ -66,9 +72,6 @@ export default function FarmerHomePage() {
         {farmer?.village && (
           <p className="mb-4 text-center text-base text-neutral-600">{farmer.village}</p>
         )}
-        <p className="mb-6 text-center text-lg text-neutral-700">
-          You have no booking yet. Slot booking is coming soon.
-        </p>
 
         <div className="mb-8">
           <p className="mb-2 text-sm font-semibold text-neutral-700">
@@ -94,8 +97,34 @@ export default function FarmerHomePage() {
         </div>
 
         <div className="mb-8">
-          <CentresList language={language} />
+          {latestBooking ? (
+            <BookingStatusCard
+              booking={latestBooking}
+              language={language}
+              onBookAgain={() => router.push("/book")}
+            />
+          ) : (
+            <p className="mb-4 text-center text-lg text-neutral-700">
+              You have no booking yet.
+            </p>
+          )}
         </div>
+
+        {!hasActiveBooking && (!latestBooking || latestBooking.stage === "paid") && (
+          <button
+            type="button"
+            onClick={() => router.push("/book")}
+            className="mb-8 min-h-[60px] w-full rounded-xl bg-green-700 text-xl font-semibold text-white transition hover:bg-green-800"
+          >
+            {t("bookASlot", language)}
+          </button>
+        )}
+
+        {!hasActiveBooking && (
+          <div className="mb-8">
+            <CentresList language={language} />
+          </div>
+        )}
 
         <button
           type="button"

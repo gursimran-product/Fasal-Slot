@@ -25,29 +25,9 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const CACHED_USER_KEY = "fasal_user";
-
 interface SessionResponse {
   access_token: string;
   user: AuthUser;
-}
-
-function cacheUser(user: AuthUser | null) {
-  try {
-    if (user) localStorage.setItem(CACHED_USER_KEY, JSON.stringify(user));
-    else localStorage.removeItem(CACHED_USER_KEY);
-  } catch {
-    // localStorage unavailable (private mode, etc.) — non-fatal, display-only cache.
-  }
-}
-
-function readCachedUser(): AuthUser | null {
-  try {
-    const raw = localStorage.getItem(CACHED_USER_KEY);
-    return raw ? (JSON.parse(raw) as AuthUser) : null;
-  } catch {
-    return null;
-  }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -58,24 +38,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setSession = useCallback((session: SessionResponse) => {
     accessTokenRef.current = session.access_token;
     setUser(session.user);
-    cacheUser(session.user);
     setStatus("authenticated");
   }, []);
 
   const clearSession = useCallback(() => {
     accessTokenRef.current = null;
     setUser(null);
-    cacheUser(null);
     setStatus("unauthenticated");
   }, []);
 
-  const refresh = useCallback(async (): Promise<string | null> => {
+  // Refresh is the single source of truth for restoring a session: it
+  // returns both a fresh access token and the current user record, so the
+  // UI never ends up "authenticated" with stale or missing profile data.
+  const refresh = useCallback(async (): Promise<SessionResponse | null> => {
     try {
       const res = await apiFetch("/auth/refresh", { method: "POST" });
       if (!res.ok) return null;
-      const body = (await res.json()) as { access_token: string };
-      accessTokenRef.current = body.access_token;
-      return body.access_token;
+      const session = (await res.json()) as SessionResponse;
+      accessTokenRef.current = session.access_token;
+      return session;
     } catch {
       return null;
     }
@@ -83,17 +64,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     (async () => {
-      const token = await refresh();
-      if (!token) {
-        clearSession();
-        return;
-      }
-      // Refresh only returns a token, not the profile — fall back to the
-      // cached (non-sensitive) profile for continuity across reloads.
-      setUser(readCachedUser());
-      setStatus("authenticated");
+      const session = await refresh();
+      if (!session) clearSession();
+      else setSession(session);
     })();
-  }, [refresh, clearSession]);
+  }, [refresh, clearSession, setSession]);
 
   const requestOtp = useCallback(async (phone: string) => {
     await apiJson("/auth/otp/request", {
@@ -159,12 +134,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       let res = await apiFetch(path, withAuth(accessTokenRef.current));
       if (res.status === 401) {
-        const newToken = await refresh();
-        if (!newToken) {
+        const session = await refresh();
+        if (!session) {
           clearSession();
           throw new ApiError(401, "session expired");
         }
-        res = await apiFetch(path, withAuth(newToken));
+        setUser(session.user);
+        res = await apiFetch(path, withAuth(session.access_token));
       }
       return res;
     },

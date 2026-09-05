@@ -1,4 +1,9 @@
-import { Pool } from "pg";
+import { Pool, types } from "pg";
+
+// DATE columns (OID 1082) default-parse to local-midnight JS Date objects,
+// which then serialize to the wrong calendar day in UTC (India is UTC+5:30).
+// Keep them as plain "YYYY-MM-DD" strings instead.
+types.setTypeParser(1082, (value: string) => value);
 
 declare global {
   // eslint-disable-next-line no-var

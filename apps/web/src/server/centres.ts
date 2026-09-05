@@ -65,7 +65,7 @@ export async function getCentreCapacity(
 ): Promise<CentreCapacityWithAvailability[]> {
   const { rows } = await pool.query(
     `SELECT
-       cc.id, cc.centre_id, cc.date::text AS date, cc.time_window, cc.total_slots,
+       cc.id, cc.centre_id, cc.date, cc.time_window, cc.total_slots,
        cc.updated_by, cc.updated_at,
        COALESCE(b.booked_count, 0)::int AS booked_count
      FROM centre_capacity cc
