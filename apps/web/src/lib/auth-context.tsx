@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import type { AuthUser } from "@fasal-slot/types";
+import type { AuthUser, Language } from "@fasal-slot/types";
 import { apiFetch, apiJson, ApiError } from "./api";
 
 type Status = "loading" | "authenticated" | "unauthenticated";
@@ -17,7 +17,7 @@ interface AuthContextValue {
   status: Status;
   user: AuthUser | null;
   requestOtp: (phone: string) => Promise<void>;
-  verifyOtp: (phone: string, otp: string) => Promise<void>;
+  verifyOtp: (phone: string, otp: string, language?: Language) => Promise<void>;
   loginWithPassword: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   authFetch: (path: string, options?: RequestInit) => Promise<Response>;
@@ -103,12 +103,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const verifyOtp = useCallback(
-    async (phone: string, otp: string) => {
+    async (phone: string, otp: string, language?: Language) => {
       const session = await apiJson<SessionResponse>("/auth/otp/verify", {
         method: "POST",
         body: JSON.stringify({ phone, otp }),
       });
       setSession(session);
+
+      if (language && session.user.role === "farmer") {
+        // Best-effort: persist the language picked during login. Not fatal if
+        // it fails — the farmer can still change it later from their profile.
+        await apiFetch(`/farmers/${session.user.id}/language`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${session.access_token}` },
+          body: JSON.stringify({ language }),
+        }).catch(() => {});
+      }
     },
     [setSession]
   );

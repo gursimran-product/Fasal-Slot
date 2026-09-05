@@ -48,7 +48,7 @@ export default function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await verifyOtp(phone, otp);
+      await verifyOtp(phone, otp, language);
       router.replace("/home");
     } catch (err) {
       setError(err instanceof ApiError && err.status === 401 ? t("invalidOtp", language) : t("somethingWrong", language));

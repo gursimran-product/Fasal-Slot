@@ -20,6 +20,11 @@ const strings = {
   somethingWrong: { en: "Something went wrong, please try again", hi: "कुछ गलत हो गया, कृपया पुनः प्रयास करें", pa: "ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ, ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ" },
   welcome: { en: "Welcome to Fasal Slot", hi: "फसल स्लॉट में आपका स्वागत है", pa: "ਫਸਲ ਸਲਾਟ ਵਿੱਚ ਜੀ ਆਇਆਂ ਨੂੰ" },
   logout: { en: "Log out", hi: "लॉग आउट", pa: "ਲਾਗ ਆਊਟ" },
+  changeLanguage: { en: "Language", hi: "भाषा", pa: "ਭਾਸ਼ਾ" },
+  centresNearYou: { en: "Procurement centres", hi: "खरीद केंद्र", pa: "ਖਰੀਦ ਕੇਂਦਰ" },
+  todaySlots: { en: "Today's slots", hi: "आज के स्लॉट", pa: "ਅੱਜ ਦੇ ਸਲਾਟ" },
+  slotsAvailable: { en: "available", hi: "उपलब्ध", pa: "ਉਪਲਬਧ" },
+  slotsFull: { en: "Full", hi: "पूरा भरा", pa: "ਪੂਰਾ ਭਰਿਆ" },
 } as const;
 
 export type StringKey = keyof typeof strings;
