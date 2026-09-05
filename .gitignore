@@ -9,3 +9,6 @@ build/
 Thumbs.db
 .turbo/
 coverage/
+
+.vercel
+.env*
