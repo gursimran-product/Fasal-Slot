@@ -271,6 +271,143 @@ export async function listFarmerBookings(farmerId: string): Promise<Booking[]> {
   return rows.map(mapBooking);
 }
 
+const ALLOWED_TRANSITIONS: Partial<Record<BookingStage, BookingStage[]>> = {
+  booked: ["arrived"],
+  arrived: ["weighed"],
+  weighed: ["accepted", "rejected"],
+  accepted: ["paid"],
+};
+
+const STAGE_TIMESTAMP_COLUMN: Partial<Record<BookingStage, string>> = {
+  arrived: "arrived_at",
+  weighed: "weighed_at",
+  accepted: "accepted_at",
+  paid: "paid_at",
+};
+
+export type AdvanceStageResult =
+  | Booking
+  | "not_found"
+  | "invalid_transition"
+  | "reject_reason_required";
+
+export async function advanceBookingStage(
+  bookingId: string,
+  toStage: BookingStage,
+  triggeredBy: "govt_operator",
+  triggeredById: string,
+  options: { rejectReason?: string; amountPaid?: number } = {}
+): Promise<AdvanceStageResult> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const { rows } = await client.query<BookingRow>(
+      "SELECT * FROM bookings WHERE id = $1 FOR UPDATE",
+      [bookingId]
+    );
+    if (rows.length === 0) {
+      await client.query("ROLLBACK");
+      return "not_found";
+    }
+
+    const booking = rows[0];
+    const allowed = ALLOWED_TRANSITIONS[booking.stage] ?? [];
+    if (!allowed.includes(toStage)) {
+      await client.query("ROLLBACK");
+      return "invalid_transition";
+    }
+    if (toStage === "rejected" && !options.rejectReason) {
+      await client.query("ROLLBACK");
+      return "reject_reason_required";
+    }
+
+    const setClauses = ["stage = $1", "updated_at = NOW()"];
+    const params: unknown[] = [toStage];
+
+    const timestampColumn = STAGE_TIMESTAMP_COLUMN[toStage];
+    if (timestampColumn) {
+      params.push(new Date());
+      setClauses.push(`${timestampColumn} = $${params.length}`);
+    }
+    if (toStage === "rejected") {
+      params.push(options.rejectReason);
+      setClauses.push(`reject_reason = $${params.length}`);
+    }
+    if (toStage === "paid" && options.amountPaid != null) {
+      params.push(options.amountPaid);
+      setClauses.push(`amount_paid = $${params.length}`);
+    }
+
+    params.push(bookingId);
+    const updateRes = await client.query<BookingRow>(
+      `UPDATE bookings SET ${setClauses.join(", ")} WHERE id = $${params.length} RETURNING *`,
+      params
+    );
+
+    await client.query(
+      `INSERT INTO status_events (booking_id, from_stage, to_stage, triggered_by, triggered_by_id, notes)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [bookingId, booking.stage, toStage, triggeredBy, triggeredById, options.rejectReason ?? null]
+    );
+
+    await client.query("COMMIT");
+    return mapBooking(updateRes.rows[0]);
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+export interface BookingWithFarmer extends Booking {
+  farmerName: string;
+  farmerPhone: string;
+}
+
+export interface CentreDashboard {
+  counts: Record<BookingStage, number>;
+  queue: BookingWithFarmer[];
+  waiting: BookingWithFarmer[];
+}
+
+export async function getCentreDashboard(centreId: string, date: string): Promise<CentreDashboard> {
+  const { rows } = await pool.query(
+    `SELECT b.*, f.name AS farmer_name, f.phone AS farmer_phone
+     FROM bookings b
+     JOIN farmers f ON f.id = b.farmer_id
+     WHERE b.centre_id = $1 AND b.date = $2
+     ORDER BY b.time_window, b.arrived_at ASC NULLS LAST, b.created_at ASC`,
+    [centreId, date]
+  );
+
+  const counts: Record<BookingStage, number> = {
+    booked: 0,
+    arrived: 0,
+    weighed: 0,
+    accepted: 0,
+    rejected: 0,
+    paid: 0,
+    cancelled: 0,
+  };
+  const queue: BookingWithFarmer[] = [];
+  const waiting: BookingWithFarmer[] = [];
+
+  for (const row of rows) {
+    counts[row.stage as BookingStage] += 1;
+    const item: BookingWithFarmer = {
+      ...mapBooking(row),
+      farmerName: row.farmer_name,
+      farmerPhone: row.farmer_phone,
+    };
+    if (row.stage === "booked") waiting.push(item);
+    else if (row.stage !== "cancelled") queue.push(item);
+  }
+
+  return { counts, queue, waiting };
+}
+
 export async function listAgentBookings(
   agentId: string,
   filter: { date?: string; stage?: string }
