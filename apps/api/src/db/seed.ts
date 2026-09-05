@@ -1,4 +1,5 @@
 import "dotenv/config";
+import bcrypt from "bcryptjs";
 import { pool } from "./pool";
 
 const CENTRES = [
@@ -37,6 +38,26 @@ async function main() {
     }
 
     console.log(`seeded centre: ${centre.name} (${centreId})`);
+
+    if (centre.name === "Karnal Mandi") {
+      const passwordHash = await bcrypt.hash("password123", 10);
+
+      await pool.query(
+        `INSERT INTO agents (name, phone, email, password_hash, centre_id)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (phone) DO NOTHING`,
+        ["Demo Agent", "9990001111", "agent@example.com", passwordHash, centreId]
+      );
+      console.log("seeded demo agent: agent@example.com / 9990001111 / password123");
+
+      await pool.query(
+        `INSERT INTO govt_users (name, email, password_hash, role, centre_id, state)
+         VALUES ($1, $2, $3, 'operator', $4, $5)
+         ON CONFLICT (email) DO NOTHING`,
+        ["Demo Operator", "operator@example.com", passwordHash, centreId, centre.state]
+      );
+      console.log("seeded demo govt operator: operator@example.com / password123");
+    }
   }
 
   console.log("seed complete");
