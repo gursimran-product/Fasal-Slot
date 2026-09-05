@@ -59,6 +59,43 @@ export async function listCentres(filter: ListCentresFilter): Promise<Centre[]> 
   return rows.map(mapCentre);
 }
 
+export type RiskLevel = "low" | "watch" | "high";
+
+export interface CentreRisk {
+  centre: Centre;
+  booked: number;
+  inFlight: number;
+  completed: number;
+  rejected: number;
+  riskLevel: RiskLevel;
+}
+
+export async function getOversightRollup(date: string, state?: string): Promise<CentreRisk[]> {
+  const centres = await listCentres({ state });
+
+  const results: CentreRisk[] = [];
+  for (const centre of centres) {
+    const { rows } = await pool.query(
+      `SELECT stage, COUNT(*)::int AS count FROM bookings WHERE centre_id = $1 AND date = $2 GROUP BY stage`,
+      [centre.id, date]
+    );
+    const counts: Record<string, number> = {};
+    for (const row of rows) counts[row.stage] = row.count;
+
+    const booked = counts.booked ?? 0;
+    const inFlight = (counts.arrived ?? 0) + (counts.weighed ?? 0) + (counts.accepted ?? 0);
+    const completed = counts.paid ?? 0;
+    const rejected = counts.rejected ?? 0;
+
+    let riskLevel: RiskLevel = "low";
+    if (inFlight >= 2 && completed === 0) riskLevel = "high";
+    else if (inFlight >= 1 && completed === 0) riskLevel = "watch";
+
+    results.push({ centre, booked, inFlight, completed, rejected, riskLevel });
+  }
+  return results;
+}
+
 export async function getCentreCapacity(
   centreId: string,
   date: string

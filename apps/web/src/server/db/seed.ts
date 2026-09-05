@@ -60,6 +60,14 @@ async function main() {
         ["Demo Operator", "operator@example.com", passwordHash, centreId, centre.state]
       );
       console.log("seeded demo govt operator: operator@example.com / password123");
+
+      await pool.query(
+        `INSERT INTO govt_users (name, email, password_hash, role, centre_id, state)
+         VALUES ($1, $2, $3, 'oversight', NULL, $4)
+         ON CONFLICT (email) DO NOTHING`,
+        ["Demo Oversight", "oversight@example.com", passwordHash, centre.state]
+      );
+      console.log("seeded demo govt oversight: oversight@example.com / password123");
     }
   }
 
