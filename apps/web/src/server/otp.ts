@@ -4,15 +4,25 @@ import { pool } from "./db/pool";
 export const OTP_TTL_SECONDS = 5 * 60;
 const OTP_LENGTH = 4;
 
+// Dev convenience only: these numbers always get a fixed OTP instead of a
+// random one, so local testing doesn't require checking server logs. Never
+// active in production regardless of what's in this map.
+const DEV_STATIC_OTP: Record<string, string> = {
+  "9123456780": "1234",
+};
+
 function hashOtp(otp: string): string {
   return crypto.createHash("sha256").update(otp).digest("hex");
 }
 
 export async function requestOtp(phone: string): Promise<void> {
-  const otp = crypto
-    .randomInt(0, 10 ** OTP_LENGTH)
-    .toString()
-    .padStart(OTP_LENGTH, "0");
+  const staticOtp = process.env.NODE_ENV !== "production" ? DEV_STATIC_OTP[phone] : undefined;
+  const otp =
+    staticOtp ??
+    crypto
+      .randomInt(0, 10 ** OTP_LENGTH)
+      .toString()
+      .padStart(OTP_LENGTH, "0");
   const expiresAt = new Date(Date.now() + OTP_TTL_SECONDS * 1000);
 
   await pool.query(

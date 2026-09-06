@@ -1,4 +1,4 @@
-import type { AuthUser, Farmer, Language } from "@fasal-slot/types";
+import type { AuthUser, Farmer, LandParcel, Language } from "@fasal-slot/types";
 import { pool } from "./db/pool";
 
 export function canAccessFarmer(user: AuthUser, farmer: Farmer): boolean {
@@ -16,7 +16,14 @@ interface FarmerRow {
   state: string | null;
   language: Language;
   aadhaar_ref: string | null;
-  land_details: Record<string, unknown> | null;
+  land_details: Farmer["landDetails"];
+  mfmb_id: string | null;
+  guardian_name: string | null;
+  holding_category: string | null;
+  land_acres: string | null;
+  bank_name: string | null;
+  bank_account_last4: string | null;
+  bank_ifsc: string | null;
   agent_id: string | null;
   consent_at: string | null;
   created_by: Farmer["createdBy"];
@@ -35,6 +42,13 @@ function mapFarmer(row: FarmerRow): Farmer {
     language: row.language,
     aadhaarRef: row.aadhaar_ref,
     landDetails: row.land_details,
+    mfmbId: row.mfmb_id,
+    guardianName: row.guardian_name,
+    holdingCategory: row.holding_category,
+    landAcres: row.land_acres ? Number(row.land_acres) : null,
+    bankName: row.bank_name,
+    bankAccountLast4: row.bank_account_last4,
+    bankIfsc: row.bank_ifsc,
     agentId: row.agent_id,
     consentAt: row.consent_at,
     createdBy: row.created_by,
@@ -57,6 +71,17 @@ export interface CreateFarmerInput {
   language: Language;
   agentId: string | null;
   createdBy: Farmer["createdBy"];
+  plrs?: {
+    mfmbId?: string;
+    guardianName?: string;
+    aadhaarRef?: string;
+    holdingCategory?: string;
+    landAcres?: number;
+    bankName?: string;
+    bankAccountLast4?: string;
+    bankIfsc?: string;
+    landParcels?: LandParcel[];
+  };
 }
 
 export const PHONE_ALREADY_REGISTERED = "phone_already_registered" as const;
@@ -67,9 +92,15 @@ export async function createFarmer(
   const existing = await pool.query("SELECT id FROM farmers WHERE phone = $1", [input.phone]);
   if (existing.rows.length > 0) return PHONE_ALREADY_REGISTERED;
 
+  const landDetails = input.plrs?.landParcels ? { parcels: input.plrs.landParcels } : null;
+
   const { rows } = await pool.query<FarmerRow>(
-    `INSERT INTO farmers (name, phone, village, district, state, language, agent_id, created_by, consent_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+    `INSERT INTO farmers (
+       name, phone, village, district, state, language, agent_id, created_by, consent_at,
+       aadhaar_ref, land_details, mfmb_id, guardian_name, holding_category, land_acres,
+       bank_name, bank_account_last4, bank_ifsc
+     )
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), $9, $10, $11, $12, $13, $14, $15, $16, $17)
      RETURNING *`,
     [
       input.name,
@@ -80,6 +111,15 @@ export async function createFarmer(
       input.language,
       input.agentId,
       input.createdBy,
+      input.plrs?.aadhaarRef ?? null,
+      landDetails ? JSON.stringify(landDetails) : null,
+      input.plrs?.mfmbId ?? null,
+      input.plrs?.guardianName ?? null,
+      input.plrs?.holdingCategory ?? null,
+      input.plrs?.landAcres ?? null,
+      input.plrs?.bankName ?? null,
+      input.plrs?.bankAccountLast4 ?? null,
+      input.plrs?.bankIfsc ?? null,
     ]
   );
   return mapFarmer(rows[0]);

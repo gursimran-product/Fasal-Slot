@@ -81,15 +81,17 @@ export async function createFarmerStub(phone: string): Promise<AuthUser> {
 
 export async function authenticateWithPassword(
   email: string,
-  password: string
+  password: string,
+  token?: string
 ): Promise<AuthUser | null> {
   const govt = await pool.query(
-    "SELECT id, name, email, password_hash, role, centre_id FROM govt_users WHERE email = $1 AND is_active = true",
+    "SELECT id, name, email, password_hash, token_hash, role, centre_id FROM govt_users WHERE email = $1 AND is_active = true",
     [email]
   );
   if (govt.rows.length > 0) {
     const g = govt.rows[0];
     if (!(await bcrypt.compare(password, g.password_hash))) return null;
+    if (!g.token_hash || !token || !(await bcrypt.compare(token, g.token_hash))) return null;
     return {
       id: g.id,
       role: g.role === "oversight" ? "govt_oversight" : "govt_operator",
@@ -116,4 +118,28 @@ export async function authenticateWithPassword(
   }
 
   return null;
+}
+
+export async function authenticateAgentWithLicense(
+  licenseNumber: string,
+  phone: string,
+  mpin: string
+): Promise<AuthUser | null> {
+  const { rows } = await pool.query(
+    "SELECT id, name, email, phone, centre_id, mpin_hash FROM agents WHERE license_number = $1 AND phone = $2 AND is_active = true",
+    [licenseNumber, phone]
+  );
+  if (rows.length === 0 || !rows[0].mpin_hash) return null;
+
+  const a = rows[0];
+  if (!(await bcrypt.compare(mpin, a.mpin_hash))) return null;
+
+  return {
+    id: a.id,
+    role: "agent",
+    name: a.name,
+    email: a.email,
+    phone: a.phone,
+    centreId: a.centre_id,
+  };
 }

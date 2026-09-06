@@ -18,22 +18,25 @@ export default function GovtDashboardPage() {
 
   async function handleLogout() {
     await logout();
-    router.replace("/staff/login");
+    router.replace("/login?as=official");
   }
 
   const isOversight = user?.role === "govt_oversight";
 
   return (
-    <div className="min-h-screen bg-neutral-50 p-6">
+    <div className="min-h-screen bg-chalk p-6">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-neutral-900">
-            {isOversight ? `Oversight — ${date}` : `Centre dashboard — ${date}`}
-          </h1>
+          <div>
+            <h1 className="font-sans text-2xl font-bold text-slate-ink">
+              {isOversight ? "Oversight" : "Centre dashboard"}
+            </h1>
+            <p className="font-mono text-sm text-slate-600">{date}</p>
+          </div>
           <button
             type="button"
             onClick={handleLogout}
-            className="h-10 rounded-lg border border-neutral-400 px-4 text-sm font-semibold text-neutral-800 hover:bg-neutral-100"
+            className="h-10 rounded border-[1.5px] border-slate-500 px-4 font-sans text-sm font-bold text-slate-ink hover:bg-white"
           >
             Log out
           </button>
@@ -45,7 +48,7 @@ export default function GovtDashboardPage() {
               <button
                 type="button"
                 onClick={() => setViewingCentreId(null)}
-                className="mb-4 text-sm font-medium text-green-800 underline underline-offset-2"
+                className="mb-4 font-sans text-sm font-bold text-canopy underline underline-offset-2"
               >
                 ← Back to all centres
               </button>
@@ -57,7 +60,7 @@ export default function GovtDashboardPage() {
         ) : user?.centreId ? (
           <CentreDashboard centreId={user.centreId} canAct />
         ) : (
-          <p className="text-lg text-neutral-700">No centre assigned to this account.</p>
+          <p className="font-body text-lg text-slate-700">No centre assigned to this account.</p>
         )}
       </div>
     </div>

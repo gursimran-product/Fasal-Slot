@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const { centreId, crop, date, timeWindow } = body ?? {};
+  const { centreId, crop, date, timeWindow, quantityQtl, vehicleNumber, driverName, moistureDeclared } = body ?? {};
 
   if (typeof centreId !== "string" || !centreId) {
     return NextResponse.json({ error: "centreId is required" }, { status: 400 });
@@ -28,6 +28,18 @@ export async function POST(req: NextRequest) {
   }
   if (typeof timeWindow !== "string" || !timeWindow) {
     return NextResponse.json({ error: "timeWindow is required" }, { status: 400 });
+  }
+  if (typeof quantityQtl !== "number" || !Number.isFinite(quantityQtl) || quantityQtl < 1 || quantityQtl > 500) {
+    return NextResponse.json({ error: "quantityQtl must be a number between 1 and 500" }, { status: 400 });
+  }
+  if (moistureDeclared !== true) {
+    return NextResponse.json({ error: "moisture declaration is required" }, { status: 400 });
+  }
+  if (vehicleNumber != null && typeof vehicleNumber !== "string") {
+    return NextResponse.json({ error: "vehicleNumber must be a string" }, { status: 400 });
+  }
+  if (driverName != null && typeof driverName !== "string") {
+    return NextResponse.json({ error: "driverName must be a string" }, { status: 400 });
   }
 
   let farmerId: string;
@@ -56,6 +68,10 @@ export async function POST(req: NextRequest) {
     date,
     timeWindow,
     createdBy: user.role,
+    quantityQtl,
+    vehicleNumber: vehicleNumber || null,
+    driverName: driverName || null,
+    moistureDeclared: true,
   });
 
   if (result === "no_capacity_configured") {

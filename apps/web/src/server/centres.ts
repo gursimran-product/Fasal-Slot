@@ -11,6 +11,7 @@ interface CentreRow {
   lng: string | null;
   crops: string[];
   is_active: boolean;
+  gate_supervisor_phone: string | null;
   created_at: string;
 }
 
@@ -25,6 +26,7 @@ function mapCentre(row: CentreRow): Centre {
     lng: row.lng ? Number(row.lng) : null,
     crops: row.crops,
     isActive: row.is_active,
+    gateSupervisorPhone: row.gate_supervisor_phone,
     createdAt: row.created_at,
   };
 }

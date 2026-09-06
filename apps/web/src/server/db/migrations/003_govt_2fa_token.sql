@@ -1,0 +1,1 @@
+ALTER TABLE govt_users ADD COLUMN IF NOT EXISTS token_hash VARCHAR(200);

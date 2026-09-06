@@ -3,14 +3,46 @@
 @tailwind utilities;
 
 body {
-  color: #171717;
-  background: #ffffff;
-  font-family: Arial, Helvetica, sans-serif;
+  color: #1e293b;
+  background: #f8fafc;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Physical token / gate-slip perforation motif — see DESIGN.md "Physical Token Notch Motif" */
+  .token-notch {
+    position: relative;
+  }
+  .token-notch::before,
+  .token-notch::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #f8fafc;
+    border-radius: 9999px;
+    z-index: 1;
+  }
+  .token-notch::before {
+    left: -8px;
+  }
+  .token-notch::after {
+    right: -8px;
   }
 }
 

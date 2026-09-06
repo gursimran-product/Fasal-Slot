@@ -15,6 +15,15 @@ interface BookingRow {
   stage: BookingStage;
   reject_reason: string | null;
   amount_paid: string | null;
+  quantity_qtl: string | null;
+  vehicle_number: string | null;
+  driver_name: string | null;
+  moisture_declared: boolean;
+  moisture_pct: string | null;
+  weighbridge_token: string | null;
+  gate_number: string | null;
+  jform_number: string | null;
+  utr_reference: string | null;
   created_by: CreatedBy;
   created_at: string;
   arrived_at: string | null;
@@ -37,6 +46,15 @@ function mapBooking(row: BookingRow): Booking {
     stage: row.stage,
     rejectReason: row.reject_reason,
     amountPaid: row.amount_paid ? Number(row.amount_paid) : null,
+    quantityQtl: row.quantity_qtl ? Number(row.quantity_qtl) : null,
+    vehicleNumber: row.vehicle_number,
+    driverName: row.driver_name,
+    moistureDeclared: row.moisture_declared,
+    moisturePct: row.moisture_pct ? Number(row.moisture_pct) : null,
+    weighbridgeToken: row.weighbridge_token,
+    gateNumber: row.gate_number,
+    jformNumber: row.jform_number,
+    utrReference: row.utr_reference,
     createdBy: row.created_by,
     createdAt: row.created_at,
     arrivedAt: row.arrived_at,
@@ -61,16 +79,33 @@ async function insertBookingWithRefCode(
     date: string;
     timeWindow: string;
     createdBy: CreatedBy;
+    quantityQtl?: number | null;
+    vehicleNumber?: string | null;
+    driverName?: string | null;
+    moistureDeclared?: boolean;
   },
   attemptsLeft = 5
 ): Promise<Booking> {
   const refCode = generateRefCode();
   try {
     const { rows } = await client.query<BookingRow>(
-      `INSERT INTO bookings (farmer_id, centre_id, agent_id, crop, date, time_window, ref_code, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO bookings (farmer_id, centre_id, agent_id, crop, date, time_window, ref_code, created_by, quantity_qtl, vehicle_number, driver_name, moisture_declared)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
        RETURNING *`,
-      [input.farmerId, input.centreId, input.agentId, input.crop, input.date, input.timeWindow, refCode, input.createdBy]
+      [
+        input.farmerId,
+        input.centreId,
+        input.agentId,
+        input.crop,
+        input.date,
+        input.timeWindow,
+        refCode,
+        input.createdBy,
+        input.quantityQtl ?? null,
+        input.vehicleNumber ?? null,
+        input.driverName ?? null,
+        input.moistureDeclared ?? false,
+      ]
     );
     const booking = rows[0];
     await client.query(
@@ -119,6 +154,10 @@ export async function createBooking(input: {
   date: string;
   timeWindow: string;
   createdBy: CreatedBy;
+  quantityQtl: number;
+  vehicleNumber?: string | null;
+  driverName?: string | null;
+  moistureDeclared: boolean;
 }): Promise<CreateBookingResult> {
   const client = await pool.connect();
   try {
@@ -236,6 +275,91 @@ export async function lookupBookingByRefAndPhone(ref: string, phone: string): Pr
   return rows.length ? mapBooking(rows[0]) : null;
 }
 
+export const RESCHEDULE_CUTOFF_HOURS = 2;
+
+export type RescheduleBookingResult =
+  | Booking
+  | "not_found"
+  | "not_booked_stage"
+  | "past_cutoff"
+  | "no_capacity_configured"
+  | "full";
+
+export async function rescheduleBooking(
+  bookingId: string,
+  farmerId: string,
+  input: { centreId: string; date: string; timeWindow: string; reason: string | null }
+): Promise<RescheduleBookingResult> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    const { rows } = await client.query<BookingRow>(
+      "SELECT * FROM bookings WHERE id = $1 AND farmer_id = $2 FOR UPDATE",
+      [bookingId, farmerId]
+    );
+    if (rows.length === 0) {
+      await client.query("ROLLBACK");
+      return "not_found";
+    }
+    const oldBooking = mapBooking(rows[0]);
+    if (oldBooking.stage !== "booked") {
+      await client.query("ROLLBACK");
+      return "not_booked_stage";
+    }
+
+    const windowStart = oldBooking.timeWindow.split(/[-–]/)[0]?.trim();
+    const cutoffAt = new Date(`${oldBooking.date}T${windowStart}:00`);
+    cutoffAt.setHours(cutoffAt.getHours() - RESCHEDULE_CUTOFF_HOURS);
+    if (Number.isFinite(cutoffAt.getTime()) && new Date() > cutoffAt) {
+      await client.query("ROLLBACK");
+      return "past_cutoff";
+    }
+
+    const capacity = await lockAndCountCapacity(client, input.centreId, input.date, input.timeWindow);
+    if (!capacity) {
+      await client.query("ROLLBACK");
+      return "no_capacity_configured";
+    }
+    if (capacity.bookedCount >= capacity.totalSlots) {
+      await client.query("ROLLBACK");
+      return "full";
+    }
+
+    await client.query(
+      `UPDATE bookings SET stage = 'cancelled', updated_at = NOW() WHERE id = $1`,
+      [oldBooking.id]
+    );
+    await client.query(
+      `INSERT INTO status_events (booking_id, from_stage, to_stage, triggered_by, triggered_by_id, notes)
+       VALUES ($1, 'booked', 'cancelled', 'farmer', $2, $3)`,
+      [oldBooking.id, farmerId, input.reason ? `Rescheduled: ${input.reason}` : "Rescheduled"]
+    );
+
+    const newBooking = await insertBookingWithRefCode(client, {
+      farmerId,
+      centreId: input.centreId,
+      agentId: oldBooking.agentId,
+      crop: oldBooking.crop,
+      date: input.date,
+      timeWindow: input.timeWindow,
+      createdBy: "farmer",
+      quantityQtl: oldBooking.quantityQtl,
+      vehicleNumber: oldBooking.vehicleNumber,
+      driverName: oldBooking.driverName,
+      moistureDeclared: oldBooking.moistureDeclared,
+    });
+
+    await client.query("COMMIT");
+    return newBooking;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 export async function cancelBooking(id: string, triggeredBy: "farmer" | "agent", triggeredById: string): Promise<Booking | null> {
   const client = await pool.connect();
   try {
@@ -296,7 +420,15 @@ export async function advanceBookingStage(
   toStage: BookingStage,
   triggeredBy: "govt_operator",
   triggeredById: string,
-  options: { rejectReason?: string; amountPaid?: number } = {}
+  options: {
+    rejectReason?: string;
+    amountPaid?: number;
+    moisturePct?: number;
+    weighbridgeToken?: string;
+    gateNumber?: string;
+    jformNumber?: string;
+    utrReference?: string;
+  } = {}
 ): Promise<AdvanceStageResult> {
   const client = await pool.connect();
   try {
@@ -337,6 +469,30 @@ export async function advanceBookingStage(
     if (toStage === "paid" && options.amountPaid != null) {
       params.push(options.amountPaid);
       setClauses.push(`amount_paid = $${params.length}`);
+    }
+    if (toStage === "weighed") {
+      if (options.moisturePct != null) {
+        params.push(options.moisturePct);
+        setClauses.push(`moisture_pct = $${params.length}`);
+      }
+      if (options.weighbridgeToken) {
+        params.push(options.weighbridgeToken);
+        setClauses.push(`weighbridge_token = $${params.length}`);
+      }
+      if (options.gateNumber) {
+        params.push(options.gateNumber);
+        setClauses.push(`gate_number = $${params.length}`);
+      }
+    }
+    if (toStage === "paid") {
+      if (options.jformNumber) {
+        params.push(options.jformNumber);
+        setClauses.push(`jform_number = $${params.length}`);
+      }
+      if (options.utrReference) {
+        params.push(options.utrReference);
+        setClauses.push(`utr_reference = $${params.length}`);
+      }
     }
 
     params.push(bookingId);

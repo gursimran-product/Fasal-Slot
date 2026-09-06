@@ -14,9 +14,9 @@ interface CentreRisk {
 }
 
 const RISK_STYLES: Record<CentreRisk["riskLevel"], string> = {
-  low: "bg-green-100 text-green-900",
-  watch: "bg-amber-100 text-amber-900",
-  high: "bg-red-100 text-red-900",
+  low: "border-[#15803D]/30 bg-[#DCFCE7] text-[#15803D]",
+  watch: "border-[#B45309]/30 bg-[#FEF3C7] text-[#B45309]",
+  high: "border-[#B91C1C]/30 bg-[#FEE2E2] text-[#991B1B]",
 };
 
 export function OversightRollup({ onSelectCentre }: { onSelectCentre: (centreId: string) => void }) {
@@ -37,24 +37,28 @@ export function OversightRollup({ onSelectCentre }: { onSelectCentre: (centreId:
     };
   }, [authFetch]);
 
-  if (!rows) return <p className="text-neutral-600">Loading…</p>;
+  if (!rows) return <p className="font-body text-slate-600">Loading…</p>;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="overflow-hidden rounded-lg border-[1.5px] border-slate-300 bg-white">
+      <div className="grid grid-cols-[1fr_auto] gap-4 border-b border-slate-200 bg-chalk px-4 py-2 font-sans text-xs font-bold uppercase tracking-wide text-slate-600">
+        <span>Centre</span>
+        <span>Backlog risk</span>
+      </div>
       {rows.map((r) => (
         <button
           key={r.centre.id}
           type="button"
           onClick={() => onSelectCentre(r.centre.id)}
-          className="flex items-center justify-between rounded-lg border border-neutral-300 bg-white p-4 text-left hover:bg-neutral-50"
+          className="flex w-full items-center justify-between border-b border-slate-200 px-4 py-3 text-left last:border-b-0 hover:bg-chalk"
         >
           <div>
-            <p className="font-semibold text-neutral-900">{r.centre.name}</p>
-            <p className="text-sm text-neutral-600">
+            <p className="font-sans font-bold text-slate-ink">{r.centre.name}</p>
+            <p className="font-mono text-sm text-slate-600">
               {r.booked} booked · {r.inFlight} in-flight · {r.completed} completed · {r.rejected} rejected
             </p>
           </div>
-          <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase ${RISK_STYLES[r.riskLevel]}`}>
+          <span className={`shrink-0 rounded border px-3 py-1 font-sans text-xs font-bold uppercase ${RISK_STYLES[r.riskLevel]}`}>
             {r.riskLevel}
           </span>
         </button>

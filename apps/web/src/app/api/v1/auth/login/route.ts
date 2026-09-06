@@ -5,13 +5,13 @@ import { refreshCookieOptions } from "@/server/cookies";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const { email, password } = body ?? {};
+  const { email, password, token } = body ?? {};
 
   if (typeof email !== "string" || typeof password !== "string") {
     return NextResponse.json({ error: "email and password are required" }, { status: 400 });
   }
 
-  const user = await authenticateWithPassword(email, password);
+  const user = await authenticateWithPassword(email, password, typeof token === "string" ? token : undefined);
   if (!user) {
     return NextResponse.json({ error: "invalid credentials" }, { status: 401 });
   }

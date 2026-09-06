@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getBearerUser } from "@/server/request-auth";
 import { createFarmer, PHONE_ALREADY_REGISTERED } from "@/server/farmers";
 import { isValidPhone } from "@/server/auth-service";
+import { verifyConsentToken } from "@/server/consent-token";
 
 const VALID_LANGUAGES = ["en", "hi", "pa"];
 
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const { name, phone, village, district, state, language } = body ?? {};
+  const { name, phone, village, district, state, language, consentToken, plrs } = body ?? {};
 
   if (typeof name !== "string" || name.trim().length === 0) {
     return NextResponse.json({ error: "name is required" }, { status: 400 });
@@ -25,6 +26,12 @@ export async function POST(req: NextRequest) {
   }
   if (!VALID_LANGUAGES.includes(language)) {
     return NextResponse.json({ error: "language must be one of en, hi, pa" }, { status: 400 });
+  }
+  if (typeof consentToken !== "string" || !verifyConsentToken(consentToken, phone)) {
+    return NextResponse.json(
+      { error: "farmer consent must be OTP-verified before registration" },
+      { status: 400 }
+    );
   }
 
   const result = await createFarmer({
@@ -36,6 +43,7 @@ export async function POST(req: NextRequest) {
     language,
     agentId: user.id,
     createdBy: "agent",
+    plrs: plrs && typeof plrs === "object" ? plrs : undefined,
   });
 
   if (result === PHONE_ALREADY_REGISTERED) {

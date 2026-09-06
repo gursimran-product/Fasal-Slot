@@ -18,7 +18,8 @@ interface AuthContextValue {
   user: AuthUser | null;
   requestOtp: (phone: string) => Promise<void>;
   verifyOtp: (phone: string, otp: string, language?: Language) => Promise<void>;
-  loginWithPassword: (email: string, password: string) => Promise<void>;
+  loginWithPassword: (email: string, password: string, token?: string) => Promise<void>;
+  loginAsAgent: (licenseNumber: string, phone: string, mpin: string) => Promise<void>;
   logout: () => Promise<void>;
   authFetch: (path: string, options?: RequestInit) => Promise<Response>;
 }
@@ -99,10 +100,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const loginWithPassword = useCallback(
-    async (email: string, password: string) => {
+    async (email: string, password: string, token?: string) => {
       const session = await apiJson<SessionResponse>("/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, token }),
+      });
+      setSession(session);
+    },
+    [setSession]
+  );
+
+  const loginAsAgent = useCallback(
+    async (licenseNumber: string, phone: string, mpin: string) => {
+      const session = await apiJson<SessionResponse>("/auth/agent-login", {
+        method: "POST",
+        body: JSON.stringify({ licenseNumber, phone, mpin }),
       });
       setSession(session);
     },
@@ -149,7 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ status, user, requestOtp, verifyOtp, loginWithPassword, logout, authFetch }}
+      value={{ status, user, requestOtp, verifyOtp, loginWithPassword, loginAsAgent, logout, authFetch }}
     >
       {children}
     </AuthContext.Provider>

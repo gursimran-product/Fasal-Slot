@@ -24,6 +24,16 @@ const COUNT_LABELS: { key: BookingStage; label: string }[] = [
   { key: "paid", label: "Paid" },
 ];
 
+const STAGE_TEXT_CLASS: Record<BookingStage, string> = {
+  booked: "text-[#0369A1]",
+  arrived: "text-[#B45309]",
+  weighed: "text-[#4338CA]",
+  accepted: "text-[#15803D]",
+  paid: "text-[#047857]",
+  rejected: "text-[#991B1B]",
+  cancelled: "text-slate-500",
+};
+
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -46,7 +56,19 @@ export function CentreDashboard({ centreId, canAct = true }: { centreId: string;
     load();
   }, [load]);
 
-  async function advance(bookingId: string, stage: BookingStage, extra?: { rejectReason?: string; amountPaid?: number }) {
+  async function advance(
+    bookingId: string,
+    stage: BookingStage,
+    extra?: {
+      rejectReason?: string;
+      amountPaid?: number;
+      moisturePct?: number;
+      weighbridgeToken?: string;
+      gateNumber?: string;
+      jformNumber?: string;
+      utrReference?: string;
+    }
+  ) {
     setActingOn(bookingId);
     setError(null);
     try {
@@ -79,38 +101,61 @@ export function CentreDashboard({ centreId, canAct = true }: { centreId: string;
       setError("Enter a valid amount");
       return;
     }
-    advance(bookingId, "paid", { amountPaid: amount });
+    const jformNumber = window.prompt("J-Form number (optional):") ?? undefined;
+    const utrReference = window.prompt("UTR / bank reference number (optional):") ?? undefined;
+    advance(bookingId, "paid", {
+      amountPaid: amount,
+      jformNumber: jformNumber || undefined,
+      utrReference: utrReference || undefined,
+    });
+  }
+
+  function handleMarkWeighed(bookingId: string) {
+    const moistureRaw = window.prompt("Moisture % measured (optional):") ?? undefined;
+    const weighbridgeToken = window.prompt("Weighbridge token number (optional):") ?? undefined;
+    const gateNumber = window.prompt("Gate number (optional):") ?? undefined;
+    const moisturePct = moistureRaw ? Number(moistureRaw) : undefined;
+    if (moistureRaw && Number.isNaN(moisturePct)) {
+      setError("Enter a valid moisture percentage");
+      return;
+    }
+    advance(bookingId, "weighed", {
+      moisturePct,
+      weighbridgeToken: weighbridgeToken || undefined,
+      gateNumber: gateNumber || undefined,
+    });
   }
 
   if (!dashboard) {
-    return <p className="text-neutral-600">Loading…</p>;
+    return <p className="font-body text-slate-600">Loading…</p>;
   }
 
   return (
     <div>
       {error && (
-        <p className="mb-4 rounded-lg bg-red-50 px-4 py-2 text-sm font-medium text-red-700">{error}</p>
+        <p className="mb-4 rounded border-2 border-[#B91C1C] bg-[#FEE2E2] px-4 py-2 font-body text-sm font-medium text-[#991B1B]">{error}</p>
       )}
 
-      <div className="mb-8 grid grid-cols-3 gap-3 sm:grid-cols-6">
+      {/* Real-time counter strip */}
+      <div className="mb-8 grid grid-cols-3 gap-3 rounded-lg border-[1.5px] border-slate-300 bg-white p-3 sm:grid-cols-6">
         {COUNT_LABELS.map(({ key, label }) => (
-          <div key={key} className="rounded-lg border border-neutral-300 bg-white p-3 text-center">
-            <p className="text-2xl font-bold text-neutral-900">{dashboard.counts[key]}</p>
-            <p className="text-xs font-medium text-neutral-600">{label}</p>
+          <div key={key} className="text-center">
+            <p className={`font-mono text-2xl font-bold ${STAGE_TEXT_CLASS[key]}`}>{dashboard.counts[key]}</p>
+            <p className="font-sans text-xs font-bold uppercase tracking-wide text-slate-600">{label}</p>
           </div>
         ))}
       </div>
 
-      <h2 className="mb-3 text-lg font-bold text-neutral-900">Waiting to arrive</h2>
+      <h2 className="mb-3 font-sans text-lg font-bold text-slate-ink">Waiting to arrive</h2>
       <div className="mb-8 flex flex-col gap-2">
-        {dashboard.waiting.length === 0 && <p className="text-sm text-neutral-500">None</p>}
+        {dashboard.waiting.length === 0 && <p className="font-body text-sm text-slate-500">None</p>}
         {dashboard.waiting.map((b) => (
-          <div key={b.id} className="flex items-center justify-between rounded-lg border border-neutral-300 bg-white p-3">
+          <div key={b.id} className="flex items-center justify-between rounded-lg border-[1.5px] border-slate-300 bg-white p-3">
             <div>
-              <p className="font-semibold text-neutral-900">
-                {b.farmerName} · {b.refCode}
+              <p className="font-sans font-bold text-slate-ink">
+                {b.farmerName} · <span className="font-mono">{b.refCode}</span>
               </p>
-              <p className="text-sm text-neutral-600">
+              <p className="font-body text-sm text-slate-600">
                 {b.crop} · {b.timeWindow} · {b.farmerPhone}
               </p>
             </div>
@@ -119,7 +164,7 @@ export function CentreDashboard({ centreId, canAct = true }: { centreId: string;
                 type="button"
                 disabled={actingOn === b.id}
                 onClick={() => advance(b.id, "arrived")}
-                className="h-9 rounded-lg bg-green-700 px-3 text-sm font-semibold text-white hover:bg-green-800 disabled:opacity-60"
+                className="h-9 rounded bg-canopy px-3 font-sans text-sm font-bold text-white hover:bg-canopy-deep disabled:opacity-60"
               >
                 Mark arrived
               </button>
@@ -128,19 +173,25 @@ export function CentreDashboard({ centreId, canAct = true }: { centreId: string;
         ))}
       </div>
 
-      <h2 className="mb-3 text-lg font-bold text-neutral-900">Live queue</h2>
+      <h2 className="mb-3 font-sans text-lg font-bold text-slate-ink">Live queue</h2>
       <div className="flex flex-col gap-2">
-        {dashboard.queue.length === 0 && <p className="text-sm text-neutral-500">None</p>}
+        {dashboard.queue.length === 0 && <p className="font-body text-sm text-slate-500">None</p>}
         {dashboard.queue.map((b) => (
-          <div key={b.id} className="flex items-center justify-between rounded-lg border border-neutral-300 bg-white p-3">
+          <div key={b.id} className="flex items-center justify-between rounded-lg border-[1.5px] border-slate-300 bg-white p-3">
             <div>
-              <p className="font-semibold text-neutral-900">
-                {b.farmerName} · {b.refCode}
+              <p className="font-sans font-bold text-slate-ink">
+                {b.farmerName} · <span className="font-mono">{b.refCode}</span>
               </p>
-              <p className="text-sm text-neutral-600">
-                {b.crop} · {b.timeWindow} · {b.stage}
+              <p className="font-body text-sm text-slate-600">
+                {b.crop} · {b.timeWindow} ·{" "}
+                <span className={`font-sans font-bold uppercase ${STAGE_TEXT_CLASS[b.stage]}`}>{b.stage}</span>
                 {b.stage === "rejected" && b.rejectReason ? ` — ${b.rejectReason}` : ""}
                 {b.stage === "paid" && b.amountPaid ? ` — Rs ${b.amountPaid}` : ""}
+                {b.gateNumber ? ` · Gate ${b.gateNumber}` : ""}
+                {b.weighbridgeToken ? ` · Token ${b.weighbridgeToken}` : ""}
+                {b.moisturePct != null ? ` · Moisture ${b.moisturePct}%` : ""}
+                {b.jformNumber ? ` · J-Form ${b.jformNumber}` : ""}
+                {b.utrReference ? ` · UTR ${b.utrReference}` : ""}
               </p>
             </div>
             {canAct && (
@@ -149,8 +200,8 @@ export function CentreDashboard({ centreId, canAct = true }: { centreId: string;
                   <button
                     type="button"
                     disabled={actingOn === b.id}
-                    onClick={() => advance(b.id, "weighed")}
-                    className="h-9 rounded-lg bg-green-700 px-3 text-sm font-semibold text-white hover:bg-green-800 disabled:opacity-60"
+                    onClick={() => handleMarkWeighed(b.id)}
+                    className="h-9 rounded bg-canopy px-3 font-sans text-sm font-bold text-white hover:bg-canopy-deep disabled:opacity-60"
                   >
                     Mark weighed
                   </button>
@@ -161,7 +212,7 @@ export function CentreDashboard({ centreId, canAct = true }: { centreId: string;
                       type="button"
                       disabled={actingOn === b.id}
                       onClick={() => advance(b.id, "accepted")}
-                      className="h-9 rounded-lg bg-green-700 px-3 text-sm font-semibold text-white hover:bg-green-800 disabled:opacity-60"
+                      className="h-9 rounded bg-canopy px-3 font-sans text-sm font-bold text-white hover:bg-canopy-deep disabled:opacity-60"
                     >
                       Accept
                     </button>
@@ -169,7 +220,7 @@ export function CentreDashboard({ centreId, canAct = true }: { centreId: string;
                       type="button"
                       disabled={actingOn === b.id}
                       onClick={() => handleReject(b.id)}
-                      className="h-9 rounded-lg border border-red-700 px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-60"
+                      className="h-9 rounded border-[1.5px] border-[#B91C1C] px-3 font-sans text-sm font-bold text-[#991B1B] hover:bg-[#FEE2E2] disabled:opacity-60"
                     >
                       Reject
                     </button>
@@ -180,7 +231,7 @@ export function CentreDashboard({ centreId, canAct = true }: { centreId: string;
                     type="button"
                     disabled={actingOn === b.id}
                     onClick={() => handleRecordPayment(b.id)}
-                    className="h-9 rounded-lg bg-green-700 px-3 text-sm font-semibold text-white hover:bg-green-800 disabled:opacity-60"
+                    className="h-9 rounded bg-canopy px-3 font-sans text-sm font-bold text-white hover:bg-canopy-deep disabled:opacity-60"
                   >
                     Record payment
                   </button>
