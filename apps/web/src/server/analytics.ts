@@ -14,3 +14,12 @@ export function trackSignIn(user: AuthUser, method: SignInMethod) {
     centre_id: user.centreId ?? undefined,
   });
 }
+
+export function trackSignUp(user: AuthUser, method: SignInMethod) {
+  mixpanel?.track("Signed Up", {
+    distinct_id: user.id,
+    role: user.role,
+    method,
+    centre_id: user.centreId ?? undefined,
+  });
+}

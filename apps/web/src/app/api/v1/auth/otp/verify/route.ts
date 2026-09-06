@@ -7,7 +7,7 @@ import {
 import { verifyOtp } from "@/server/otp";
 import { issueRefreshToken, signAccessToken, REFRESH_COOKIE_NAME } from "@/server/tokens";
 import { refreshCookieOptions } from "@/server/cookies";
-import { trackSignIn } from "@/server/analytics";
+import { trackSignIn, trackSignUp } from "@/server/analytics";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
@@ -22,11 +22,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid or expired otp" }, { status: 401 });
   }
 
-  const user = (await findUserByPhone(phone)) ?? (await createFarmerStub(phone));
+  const existingUser = await findUserByPhone(phone);
+  const user = existingUser ?? (await createFarmerStub(phone));
 
   const accessToken = signAccessToken(user);
   const refreshToken = await issueRefreshToken(user.id, user.role);
-  trackSignIn(user, "otp");
+  if (existingUser) {
+    trackSignIn(user, "otp");
+  } else {
+    trackSignUp(user, "otp");
+  }
 
   const res = NextResponse.json({ access_token: accessToken, user });
   res.cookies.set(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
