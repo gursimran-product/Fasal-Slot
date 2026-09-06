@@ -10,6 +10,7 @@ import {
 } from "react";
 import type { AuthUser, Language } from "@fasal-slot/types";
 import { apiFetch, apiJson, ApiError } from "./api";
+import { identifyUser, resetAnalytics } from "./analytics-client";
 
 type Status = "loading" | "authenticated" | "unauthenticated";
 
@@ -40,12 +41,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     accessTokenRef.current = session.access_token;
     setUser(session.user);
     setStatus("authenticated");
+    identifyUser(session.user);
   }, []);
 
   const clearSession = useCallback(() => {
     accessTokenRef.current = null;
     setUser(null);
     setStatus("unauthenticated");
+    resetAnalytics();
   }, []);
 
   // Refresh is the single source of truth for restoring a session: it

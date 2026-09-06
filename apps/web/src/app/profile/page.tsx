@@ -244,7 +244,7 @@ export default function ProfilePage() {
               <div className="flex flex-col gap-2 rounded-lg bg-slate-50 p-3.5 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500">{t("mobileNumber", language)}</span>
-                  <span className="font-mono font-bold text-slate-900">{farmer?.phone ?? user?.phone ?? "—"}</span>
+                  <span className="mp-mask font-mono font-bold text-slate-900">{farmer?.phone ?? user?.phone ?? "—"}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500">{t("aadhaarStatus", language)}</span>

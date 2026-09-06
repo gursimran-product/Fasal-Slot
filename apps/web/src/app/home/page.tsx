@@ -866,7 +866,7 @@ export default function FarmerHomePage() {
                     <>
                       <p className="text-sm font-semibold text-slate-900">{agent.name}</p>
                       {agent.phone && (
-                        <a href={`tel:${agent.phone}`} className="flex items-center gap-1 text-xs font-bold text-emerald-800 hover:underline">
+                        <a href={`tel:${agent.phone}`} className="mp-mask flex items-center gap-1 text-xs font-bold text-emerald-800 hover:underline">
                           <span className="material-symbols-outlined text-[14px]">call</span>
                           {agent.phone}
                         </a>

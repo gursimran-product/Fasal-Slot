@@ -406,7 +406,7 @@ export default function AddFarmerPage() {
                     <p className="text-sm font-bold text-slate-900">{plrsRecord.name}</p>
                     {plrsRecord.guardianName && <p className="text-xs text-slate-500">S/o {plrsRecord.guardianName}</p>}
                   </div>
-                  <div className="rounded-lg bg-slate-50 p-3">
+                  <div className="mp-mask rounded-lg bg-slate-50 p-3">
                     <span className="block text-[11px] text-slate-500">Mobile / MFMB UID</span>
                     <p className="font-mono text-sm font-bold text-slate-900">+91 {plrsRecord.mobile}</p>
                     <p className="text-xs text-slate-500">{plrsRecord.mfmbId}</p>
@@ -425,7 +425,7 @@ export default function AddFarmerPage() {
                   </div>
                 </div>
                 {plrsRecord.bankName && (
-                  <div className="flex items-center gap-3 rounded-lg bg-slate-100 p-3">
+                  <div className="mp-mask flex items-center gap-3 rounded-lg bg-slate-100 p-3">
                     <span className="material-symbols-outlined text-emerald-700">account_balance</span>
                     <div>
                       <p className="text-xs font-bold text-slate-800">{plrsRecord.bankName} (simulated, demo data only)</p>

@@ -346,7 +346,7 @@ export default function AgentHomePage() {
                   <span className="material-symbols-outlined text-[14px] text-emerald-700">verified</span>
                 </span>
                 <span className="text-[11px] leading-tight text-slate-500">
-                  {agentInfo?.licenseNumber ? `Lic: ${agentInfo.licenseNumber}` : "—"}
+                  <span className="mp-mask">{agentInfo?.licenseNumber ? `Lic: ${agentInfo.licenseNumber}` : "—"}</span>
                   {centre ? ` · ${centre.name}` : ""}
                 </span>
               </div>
@@ -467,7 +467,7 @@ export default function AgentHomePage() {
                           )}
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                          <a href={`tel:${farmer.phone}`} className="flex items-center gap-1 hover:text-emerald-800">
+                          <a href={`tel:${farmer.phone}`} className="mp-mask flex items-center gap-1 hover:text-emerald-800">
                             <span className="material-symbols-outlined text-[15px] text-emerald-700">call</span>
                             {farmer.phone}
                           </a>

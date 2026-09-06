@@ -189,7 +189,7 @@ export default function AgentProfilePage() {
             </div>
             <div className="flex flex-col">
               <span className="text-[11px] text-slate-500">License Registration No.</span>
-              <span className="font-mono text-base font-bold text-emerald-800">{profile.licenseNumber ?? "—"}</span>
+              <span className="mp-mask font-mono text-base font-bold text-emerald-800">{profile.licenseNumber ?? "—"}</span>
               <span className="text-[11px] text-slate-400">Form &apos;B&apos; Registered</span>
             </div>
           </div>
@@ -261,11 +261,11 @@ export default function AgentProfilePage() {
 
               <div className="flex flex-col divide-y divide-slate-100 text-sm">
                 <Row label="Proprietor / Partner" value={profile.proprietorName ?? profile.name} />
-                <Row label="Registered Mobile (OTP)" value={profile.phone ? `+91 ${profile.phone}` : "—"} verified={!!profile.phone} />
-                <Row label="Authorized Email" value={profile.email ?? "—"} accent />
+                <Row label="Registered Mobile (OTP)" value={profile.phone ? `+91 ${profile.phone}` : "—"} verified={!!profile.phone} mask />
+                <Row label="Authorized Email" value={profile.email ?? "—"} accent mask />
                 <Row label="First Registration" value={profile.registeredSince ? formatDate(profile.registeredSince) : "—"} />
-                <Row label="PAN" value={profile.pan ?? "—"} />
-                <Row label="GSTIN" value={profile.gstin ?? "—"} />
+                <Row label="PAN" value={profile.pan ?? "—"} mask />
+                <Row label="GSTIN" value={profile.gstin ?? "—"} mask />
               </div>
               {profile.firmAddress && (
                 <div className="flex flex-col gap-1 rounded-lg bg-slate-50 p-3">
@@ -394,7 +394,7 @@ export default function AgentProfilePage() {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="flex flex-col gap-1 rounded-lg bg-slate-50 p-3">
                   <span className="text-[11px] text-slate-500">Authorized License Number</span>
-                  <span className="font-mono text-lg font-bold text-emerald-800">{profile.licenseNumber ?? "—"}</span>
+                  <span className="mp-mask font-mono text-lg font-bold text-emerald-800">{profile.licenseNumber ?? "—"}</span>
                   <span className="text-[11px] text-slate-500">{centre ? `${centre.name}` : ""}</span>
                 </div>
                 <div className="flex flex-col gap-1 rounded-lg bg-slate-50 p-3">
@@ -605,7 +605,7 @@ export default function AgentProfilePage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-3 py-2.5 font-mono">{s.phone ? `+91 ${s.phone}` : "—"}</td>
+                        <td className="mp-mask px-3 py-2.5 font-mono">{s.phone ? `+91 ${s.phone}` : "—"}</td>
                         <td className="px-3 py-2.5">
                           <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
                             {s.authorizationScope ?? "—"}
@@ -645,12 +645,28 @@ export default function AgentProfilePage() {
   );
 }
 
-function Row({ label, value, verified, accent }: { label: string; value: string; verified?: boolean; accent?: boolean }) {
+function Row({
+  label,
+  value,
+  verified,
+  accent,
+  mask,
+}: {
+  label: string;
+  value: string;
+  verified?: boolean;
+  accent?: boolean;
+  mask?: boolean;
+}) {
   return (
     <div className="flex items-center justify-between py-2">
       <span className="text-xs text-slate-500">{label}</span>
       <div className="flex items-center gap-1.5">
-        <span className={`text-right text-sm font-bold ${accent ? "text-emerald-700" : "text-slate-900"}`}>{value}</span>
+        <span
+          className={`text-right text-sm font-bold ${accent ? "text-emerald-700" : "text-slate-900"} ${mask ? "mp-mask" : ""}`}
+        >
+          {value}
+        </span>
         {verified && <span className="material-symbols-outlined text-[16px] text-emerald-700">check_circle</span>}
       </div>
     </div>
