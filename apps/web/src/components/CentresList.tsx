@@ -52,7 +52,7 @@ export function CentresList({ language }: { language: Language }) {
 
   if (error) return null;
   if (!centres) {
-    return <p className="font-body text-base text-slate-600">Loading centres…</p>;
+    return <p className="font-body text-base text-slate-600">{t("loadingCentres", language)}</p>;
   }
 
   return (

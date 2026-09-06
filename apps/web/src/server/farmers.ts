@@ -140,3 +140,48 @@ export async function updateFarmerLanguage(id: string, language: Language): Prom
   );
   return rows.length ? mapFarmer(rows[0]) : null;
 }
+
+export interface UpdateFarmerProfileInput {
+  name?: string;
+  village?: string | null;
+  district?: string | null;
+  state?: string | null;
+}
+
+// Self-service edit surface: only demographic fields the farmer can speak to
+// directly. Land/bank/MFMB fields stay agent/PLRS-sourced and aren't exposed
+// here, since letting a farmer freely retype an unverified government ID or
+// bank account would misrepresent it as verified.
+export async function updateFarmerProfile(
+  id: string,
+  input: UpdateFarmerProfileInput
+): Promise<Farmer | null> {
+  const setClauses: string[] = [];
+  const params: unknown[] = [];
+
+  if (input.name !== undefined) {
+    params.push(input.name);
+    setClauses.push(`name = $${params.length}`);
+  }
+  if (input.village !== undefined) {
+    params.push(input.village);
+    setClauses.push(`village = $${params.length}`);
+  }
+  if (input.district !== undefined) {
+    params.push(input.district);
+    setClauses.push(`district = $${params.length}`);
+  }
+  if (input.state !== undefined) {
+    params.push(input.state);
+    setClauses.push(`state = $${params.length}`);
+  }
+
+  if (setClauses.length === 0) return getFarmerById(id);
+
+  params.push(id);
+  const { rows } = await pool.query<FarmerRow>(
+    `UPDATE farmers SET ${setClauses.join(", ")}, updated_at = NOW() WHERE id = $${params.length} RETURNING *`,
+    params
+  );
+  return rows.length ? mapFarmer(rows[0]) : null;
+}

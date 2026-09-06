@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import type { Booking, BookingStage, Centre, Language } from "@fasal-slot/types";
 import { useAuth } from "@/lib/auth-context";
 import { useFarmerProfile } from "@/lib/useFarmerProfile";
@@ -126,7 +127,7 @@ export default function FarmerHomePage() {
         <div className="mx-auto flex max-w-md flex-col gap-2 px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 shrink-0 rotate-45 place-items-center rounded bg-amber" aria-hidden />
+              <Image src="/fasal-slot-emblem.png" alt="Fasal Slot" width={32} height={32} className="h-8 w-8 shrink-0 object-contain" />
               <div className="flex flex-col leading-none">
                 <span className="text-xs font-extrabold uppercase tracking-wide text-emerald-900">Fasal Slot</span>
                 <span className="text-[11px] font-medium text-slate-500">फसल स्लॉट ई-प्रोक्योरमेंट</span>
@@ -203,18 +204,18 @@ export default function FarmerHomePage() {
             </div>
             <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 p-2 text-emerald-800">
               <span className="material-symbols-outlined text-[16px]">account_balance</span>
-              <span className="text-[11px] font-bold leading-tight">Aadhaar DBT Ready</span>
+              <span className="text-[11px] font-bold leading-tight">{t("aadhaarDbtReady", language)}</span>
             </div>
           </div>
 
           {/* Illustrative land/MSP snapshot — land holding & MSP rate aren't tracked yet, same numbers for every farmer */}
           <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
             <div className="flex flex-col">
-              <span className="text-[11px] text-slate-500">Registered Land</span>
+              <span className="text-[11px] text-slate-500">{t("registeredLand", language)}</span>
               <span className="font-bold text-slate-900">12 Acres</span>
             </div>
             <div className="flex flex-col text-right">
-              <span className="text-[11px] text-slate-500">Wheat MSP Rate</span>
+              <span className="text-[11px] text-slate-500">{t("wheatMspRate", language)}</span>
               <span className="font-bold text-emerald-800">₹2,425/Qtl</span>
             </div>
           </div>
@@ -287,7 +288,7 @@ export default function FarmerHomePage() {
               <div className="flex items-center justify-between rounded-lg bg-white p-3 text-slate-900">
                 <div className="flex items-center gap-2.5">
                   <span className="material-symbols-outlined text-[22px] text-amber">local_shipping</span>
-                  <span className="text-sm font-bold">4 Trolleys Ahead in Line</span>
+                  <span className="text-sm font-bold">{t("trolleysAheadInLine", language)}</span>
                 </div>
                 <span className="font-mono text-sm font-bold text-amber">~35m</span>
               </div>
@@ -367,26 +368,23 @@ export default function FarmerHomePage() {
         <section className="flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-[20px] text-amber">analytics</span>
-            <h2 className="font-bold text-slate-900">Today&apos;s Mandi Status</h2>
+            <h2 className="font-bold text-slate-900">{t("todaysMandiStatus", language)}</h2>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-lg bg-slate-50 p-2.5">
-              <span className="block text-[11px] text-slate-500">Yard Flow</span>
-              <span className="font-bold text-emerald-800">Normal (40% Cap)</span>
+              <span className="block text-[11px] text-slate-500">{t("yardFlow", language)}</span>
+              <span className="font-bold text-emerald-800">{t("yardFlowNormal", language)}</span>
             </div>
             <div className="rounded-lg bg-slate-50 p-2.5">
-              <span className="block text-[11px] text-slate-500">Avg. Clearance</span>
-              <span className="font-bold text-slate-900">42 Mins / Trolley</span>
+              <span className="block text-[11px] text-slate-500">{t("avgClearance", language)}</span>
+              <span className="font-bold text-slate-900">{t("avgClearanceValue", language)}</span>
             </div>
           </div>
           <div className="flex items-start gap-2.5 rounded-lg bg-red-50 p-3">
             <span className="material-symbols-outlined mt-0.5 shrink-0 text-[20px] text-red-700">water_drop</span>
             <div className="flex flex-col">
-              <span className="text-sm font-bold text-red-800">Moisture Norm: Max 12.0%</span>
-              <p className="mt-0.5 text-[12px] leading-tight text-slate-700">
-                Government mandate: max 12% moisture for instant acceptance. Pre-dry grain before loading to avoid
-                gate rejection.
-              </p>
+              <span className="text-sm font-bold text-red-800">{t("moistureNormTitle", language)}</span>
+              <p className="mt-0.5 text-[12px] leading-tight text-slate-700">{t("moistureNormBody", language)}</p>
             </div>
           </div>
         </section>
@@ -423,10 +421,10 @@ export default function FarmerHomePage() {
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-[20px] text-amber">sms</span>
               <div className="flex flex-col">
-                <span className="text-[12px] font-bold text-slate-900">Offline SMS Booking</span>
+                <span className="text-[12px] font-bold text-slate-900">{t("offlineSmsBooking", language)}</span>
                 <span className="text-[11px] text-slate-500">
-                  Send <strong className="font-bold text-emerald-800">SLOT</strong> to{" "}
-                  <strong className="font-bold text-slate-900">77382-99899</strong>
+                  {t("offlineSmsSend", language)} <strong className="font-bold text-emerald-800">SLOT</strong>{" "}
+                  {t("offlineSmsTo", language)} <strong className="font-bold text-slate-900">77382-99899</strong>
                 </span>
               </div>
             </div>
@@ -470,7 +468,7 @@ export default function FarmerHomePage() {
         <header className="sticky top-0 z-40 w-full border-b border-emerald-900 bg-[#00261d] text-white shadow-md">
           <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-4 px-6">
             <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5">
-              <span className="grid h-9 w-9 shrink-0 rotate-45 place-items-center rounded bg-amber" aria-hidden />
+              <Image src="/fasal-slot-emblem.png" alt="Fasal Slot" width={36} height={36} className="h-9 w-9 shrink-0 object-contain" />
               <div className="flex flex-col leading-none">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-extrabold uppercase tracking-wide text-white">Fasal Slot</span>
@@ -542,7 +540,7 @@ export default function FarmerHomePage() {
                   <h1 className="text-xl font-extrabold text-slate-900">{farmer?.name ?? user?.name}</h1>
                   <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900">
                     <span className="material-symbols-outlined text-[15px] text-emerald-700">verified</span>
-                    Verified Grower
+                    {t("verifiedGrower", language)}
                   </span>
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-600">
@@ -559,7 +557,7 @@ export default function FarmerHomePage() {
                   <span className="text-slate-300">•</span>
                   <span className="flex items-center gap-1 font-medium text-emerald-700">
                     <span className="material-symbols-outlined text-[14px]">account_balance</span>
-                    Aadhaar DBT Ready
+                    {t("aadhaarDbtReady", language)}
                   </span>
                 </div>
               </div>
@@ -592,7 +590,7 @@ export default function FarmerHomePage() {
                       <span className="text-sm font-bold uppercase tracking-wide text-emerald-200">{t("activeGatePass", language)}</span>
                     </div>
                     <span className="rounded-full border border-emerald-400/40 bg-emerald-500/20 px-2.5 py-1 font-mono text-xs font-bold text-emerald-300">
-                      Live &amp; Verified
+                      {t("liveAndVerified", language)}
                     </span>
                   </div>
 
@@ -629,12 +627,12 @@ export default function FarmerHomePage() {
                         <span className="material-symbols-outlined text-[24px]">local_shipping</span>
                       </div>
                       <div>
-                        <div className="text-sm font-bold text-slate-900">4 Trolleys Ahead at Weighbridge</div>
-                        <div className="mt-0.5 text-xs text-slate-600">Estimated wait: ~35 mins</div>
+                        <div className="text-sm font-bold text-slate-900">{t("trolleysAheadAtWeighbridge", language)}</div>
+                        <div className="mt-0.5 text-xs text-slate-600">{t("estimatedWait35", language)}</div>
                       </div>
                     </div>
                     <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-right">
-                      <span className="block text-[10px] font-bold uppercase text-slate-500">Turn Time</span>
+                      <span className="block text-[10px] font-bold uppercase text-slate-500">{t("turnTime", language)}</span>
                       <span className="font-mono text-base font-black leading-none text-amber-700">~10:15 AM</span>
                     </div>
                   </div>
@@ -691,10 +689,10 @@ export default function FarmerHomePage() {
                 <div className="flex flex-col gap-2 rounded-xl border border-slate-200/90 bg-slate-50 p-3.5">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-600">{t("colCrop", language)}</span>
-                    <span className="font-bold text-slate-900">Wheat</span>
+                    <span className="font-bold text-slate-900">{cropLabel("wheat", language)}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-600">MSP Rate</span>
+                    <span className="text-slate-600">{t("mspRateLabel", language)}</span>
                     <span className="font-mono text-sm font-bold text-emerald-900">₹2,425 / Qtl</span>
                   </div>
                   <div className="flex items-center justify-between border-t border-slate-200 pt-1.5 text-xs">
@@ -715,7 +713,7 @@ export default function FarmerHomePage() {
                 <div className="flex items-center justify-between border-t border-slate-200 pt-1 text-xs text-slate-600">
                   <span className="flex items-center gap-1 font-medium">
                     <span className="material-symbols-outlined text-[16px] text-slate-500">phone_android</span>
-                    Book without internet:
+                    {t("bookWithoutInternet", language)}
                   </span>
                   <a href="tel:18001802060" className="font-mono font-bold text-emerald-900 hover:underline">
                     1800-180-2060
@@ -759,7 +757,7 @@ export default function FarmerHomePage() {
 
             {activeTab === "history" && (
               <div className="flex flex-col gap-4 p-6">
-                {bookings === null && <p className="text-sm text-slate-500">Loading…</p>}
+                {bookings === null && <p className="text-sm text-slate-500">{t("loadingGeneric", language)}</p>}
                 {bookings && bookings.length === 0 && (
                   <p className="text-sm font-bold text-slate-800">{t("noBookingHistory", language)}</p>
                 )}
@@ -771,7 +769,7 @@ export default function FarmerHomePage() {
                           <th className="px-4 py-3">{t("colDateToken", language)}</th>
                           <th className="px-4 py-3">{t("colCrop", language)}</th>
                           <th className="px-4 py-3">{t("colMandiYard", language)}</th>
-                          <th className="px-4 py-3 text-center">Moisture %</th>
+                          <th className="px-4 py-3 text-center">{t("moisturePercentCol", language)}</th>
                           <th className="px-4 py-3">{t("colStage", language)}</th>
                         </tr>
                       </thead>
@@ -803,7 +801,7 @@ export default function FarmerHomePage() {
                                   <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-900">
                                     <span className="material-symbols-outlined text-[14px] text-emerald-700">verified</span>
                                     {booking.amountPaid != null
-                                      ? `Paid via DBT ₹${booking.amountPaid.toLocaleString("en-IN")}`
+                                      ? `${t("paidViaDbtPrefix", language)} ₹${booking.amountPaid.toLocaleString("en-IN")}`
                                       : t(STAGE_LABEL_KEY[booking.stage], language)}
                                   </span>
                                 ) : (
@@ -832,24 +830,21 @@ export default function FarmerHomePage() {
                 {/* Illustrative — no real telemetry for yard flow / moisture yet */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <span className="block text-xs text-slate-500">Yard Flow</span>
-                    <span className="text-lg font-bold text-emerald-800">Normal (40% Cap)</span>
-                    <p className="mt-1 text-xs text-slate-600">Current wait ~42 mins/trolley.</p>
+                    <span className="block text-xs text-slate-500">{t("yardFlow", language)}</span>
+                    <span className="text-lg font-bold text-emerald-800">{t("yardFlowNormal", language)}</span>
+                    <p className="mt-1 text-xs text-slate-600">{t("currentWaitClearance", language)}</p>
                   </div>
                   <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                    <span className="block text-xs text-slate-500">Avg. Clearance</span>
-                    <span className="text-lg font-bold text-slate-900">42 Mins / Trolley</span>
-                    <p className="mt-1 text-xs text-slate-600">Gunny bags fully available.</p>
+                    <span className="block text-xs text-slate-500">{t("avgClearance", language)}</span>
+                    <span className="text-lg font-bold text-slate-900">{t("avgClearanceValue", language)}</span>
+                    <p className="mt-1 text-xs text-slate-600">{t("gunnyBagsAvailable", language)}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2.5 rounded-xl border border-red-100 bg-red-50 p-4">
                   <span className="material-symbols-outlined mt-0.5 shrink-0 text-[22px] text-red-700">water_drop</span>
                   <div className="flex flex-col">
-                    <span className="text-sm font-bold text-red-800">Moisture Norm: Max 12.0%</span>
-                    <p className="mt-0.5 text-xs leading-relaxed text-slate-700">
-                      Government mandate: max 12% moisture for instant acceptance. Pre-dry grain before loading to
-                      avoid gate rejection.
-                    </p>
+                    <span className="text-sm font-bold text-red-800">{t("moistureNormTitle", language)}</span>
+                    <p className="mt-0.5 text-xs leading-relaxed text-slate-700">{t("moistureNormBody", language)}</p>
                   </div>
                 </div>
               </div>
@@ -863,7 +858,7 @@ export default function FarmerHomePage() {
                     {[farmer?.village, farmer?.district, farmer?.state].filter(Boolean).join(", ") || "—"}
                   </p>
                   {/* Illustrative — land holding size isn't tracked from a registry yet */}
-                  <span className="text-xs font-semibold text-emerald-700">12 Acres registered · Wheat (RMS 2026-27)</span>
+                  <span className="text-xs font-semibold text-emerald-700">{t("landRegisteredNote", language)}</span>
                 </div>
                 <div className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white p-4">
                   <span className="text-xs font-bold text-slate-700">{t("assignedArhtiya", language)}</span>
@@ -889,14 +884,14 @@ export default function FarmerHomePage() {
         <footer className="w-full border-t border-emerald-900 bg-[#001c15] py-6 text-emerald-200">
           <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-4 px-6 text-xs md:flex-row">
             <div className="flex items-center gap-3">
-              <span className="font-semibold text-white">Fasal Slot Portal RMS 2026-27</span>
+              <span className="font-semibold text-white">{t("footerPortalName", language)}</span>
               <span>•</span>
-              <span>National Informatics Centre (NIC) &amp; State Mandi Board</span>
+              <span>{t("footerNicBoard", language)}</span>
             </div>
             <div className="flex items-center gap-4 font-mono text-[11px] text-white/60">
-              <span>UIDAI &amp; PFMS DBT Certified</span>
+              <span>{t("footerUidaiPfms", language)}</span>
               <span>•</span>
-              <span>Toll-Free 1800-180-2060</span>
+              <span>{t("footerTollFree", language)} 1800-180-2060</span>
             </div>
           </div>
         </footer>

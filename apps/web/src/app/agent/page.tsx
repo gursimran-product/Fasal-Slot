@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import type { Booking, BookingStage, Centre, CentreCapacityWithAvailability, CentreYardStatus, Farmer, Language } from "@fasal-slot/types";
 import { useAuth } from "@/lib/auth-context";
 import { CROPS, cropLabel } from "@/lib/crops";
@@ -311,9 +312,12 @@ export default function AgentHomePage() {
       {/* Header */}
       <header className="w-full border-b border-slate-200 bg-white shadow-sm">
         <div className="mx-auto flex min-h-[72px] max-w-[1440px] flex-wrap items-center justify-between gap-4 px-6 py-3">
-          <div className="flex flex-col">
-            <span className="text-lg font-extrabold text-emerald-900">Arhtiya Dashboard</span>
-            <span className="text-xs text-slate-500">Agent Command Centre &middot; Fasal Slot Mandi OS</span>
+          <div className="flex items-center gap-3">
+            <Image src="/fasal-slot-emblem.png" alt="Fasal Slot" width={36} height={36} className="h-9 w-9 shrink-0 object-contain" />
+            <div className="flex flex-col">
+              <span className="text-lg font-extrabold text-emerald-900">Arhtiya Dashboard</span>
+              <span className="text-xs text-slate-500">Agent Command Centre &middot; Fasal Slot Mandi OS</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">

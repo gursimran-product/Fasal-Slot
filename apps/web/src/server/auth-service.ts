@@ -68,12 +68,15 @@ export async function findUserById(
   };
 }
 
+// A brand-new farmer verifying OTP for the first time has no name on file
+// yet — we don't invent one. The empty name is the signal the frontend uses
+// to route them to onboarding instead of straight to the dashboard.
 export async function createFarmerStub(phone: string): Promise<AuthUser> {
   const { rows } = await pool.query(
     `INSERT INTO farmers (name, phone, language, created_by)
      VALUES ($1, $2, 'en', 'farmer')
      RETURNING id, name, phone`,
-    ["Farmer", phone]
+    ["", phone]
   );
   const f = rows[0];
   return { id: f.id, role: "farmer", name: f.name, phone: f.phone };

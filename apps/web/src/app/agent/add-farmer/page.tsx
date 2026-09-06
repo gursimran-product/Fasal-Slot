@@ -52,6 +52,7 @@ export default function AddFarmerPage() {
   const [language, setLanguage] = useState<Language>("pa");
 
   const [otpSent, setOtpSent] = useState(false);
+  const [displayedOtp, setDisplayedOtp] = useState<string | null>(null);
   const [otpCode, setOtpCode] = useState("");
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
@@ -159,6 +160,7 @@ export default function AddFarmerPage() {
   function resetConsent() {
     setOtpSent(false);
     setOtpCode("");
+    setDisplayedOtp(null);
     setConsentToken(null);
     setConsentError(null);
   }
@@ -173,6 +175,8 @@ export default function AddFarmerPage() {
         setConsentError("Could not send OTP");
         return;
       }
+      const body = await res.json().catch(() => ({}));
+      setDisplayedOtp(typeof body.otp === "string" ? body.otp : null);
       setOtpSent(true);
     } finally {
       setSendingOtp(false);
@@ -537,6 +541,24 @@ export default function AddFarmerPage() {
                   OTP verified on +91 {effectivePhone}
                 </div>
               ) : (
+                <div className="flex flex-col gap-2">
+                  {otpSent && displayedOtp && (
+                    <div className="flex items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                          No SMS gateway connected — code
+                        </span>
+                        <span className="font-mono text-lg font-black tracking-[0.3em] text-amber-900">{displayedOtp}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setOtpCode(displayedOtp)}
+                        className="shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700"
+                      >
+                        Fill in
+                      </button>
+                    </div>
+                  )}
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                   {!otpSent ? (
                     <button
@@ -568,6 +590,7 @@ export default function AddFarmerPage() {
                       </button>
                     </>
                   )}
+                </div>
                 </div>
               )}
               {consentError && <p className="text-xs font-medium text-red-700">{consentError}</p>}

@@ -15,7 +15,7 @@ function hashOtp(otp: string): string {
   return crypto.createHash("sha256").update(otp).digest("hex");
 }
 
-export async function requestOtp(phone: string): Promise<void> {
+export async function requestOtp(phone: string): Promise<string> {
   const staticOtp = process.env.NODE_ENV !== "production" ? DEV_STATIC_OTP[phone] : undefined;
   const otp =
     staticOtp ??
@@ -30,8 +30,10 @@ export async function requestOtp(phone: string): Promise<void> {
     [phone, hashOtp(otp), expiresAt]
   );
 
-  // SMS provider not integrated yet (Phase 2) — log for local/dev testing.
+  // No SMS provider connected — the OTP is returned to the caller so the
+  // login screen can display it directly instead of sending a real SMS.
   console.log(`[otp] ${phone} -> ${otp} (expires in ${OTP_TTL_SECONDS}s)`);
+  return otp;
 }
 
 export async function verifyOtp(phone: string, otp: string): Promise<boolean> {

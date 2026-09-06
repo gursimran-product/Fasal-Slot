@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import type { Centre, CentreCapacityWithAvailability } from "@fasal-slot/types";
 import { useAuth } from "@/lib/auth-context";
 import { useFarmerProfile } from "@/lib/useFarmerProfile";
@@ -168,12 +169,12 @@ export default function BookSlotPage() {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.error ?? "Something went wrong, please try again");
+        setError(body.error ?? t("somethingWrong", language));
         return;
       }
       router.replace("/home");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong, please try again");
+      setError(err instanceof ApiError ? err.message : t("somethingWrong", language));
     } finally {
       setSubmitting(false);
     }
@@ -448,7 +449,7 @@ export default function BookSlotPage() {
         <header className="sticky top-0 z-40 w-full border-b border-emerald-900 bg-[#00261d] text-white shadow-md">
           <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-4 px-6">
             <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5">
-              <span className="grid h-9 w-9 shrink-0 rotate-45 place-items-center rounded bg-amber" aria-hidden />
+              <Image src="/fasal-slot-emblem.png" alt="Fasal Slot" width={36} height={36} className="h-9 w-9 shrink-0 object-contain" />
               <div className="flex flex-col leading-none">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-extrabold uppercase tracking-wide text-white">Fasal Slot</span>
@@ -470,7 +471,7 @@ export default function BookSlotPage() {
           <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
             <a href="/home" className="flex items-center gap-1 hover:text-emerald-800">
               <span className="material-symbols-outlined text-[16px]">home</span>
-              Dashboard
+              {t("dashboardNav", language)}
             </a>
             <span className="material-symbols-outlined text-[14px] text-slate-300">chevron_right</span>
             <span className="rounded bg-emerald-100 px-2 py-0.5 text-emerald-900">{t("bookASlot", language)}</span>
@@ -569,7 +570,7 @@ export default function BookSlotPage() {
                       </button>
                     );
                   })}
-                  {centres && centres.length === 0 && <p className="text-sm text-slate-500">No centres available for this crop.</p>}
+                  {centres && centres.length === 0 && <p className="text-sm text-slate-500">{t("noCentresForCrop", language)}</p>}
                 </div>
               </section>
 
@@ -582,7 +583,7 @@ export default function BookSlotPage() {
                   </div>
                   <span className="flex items-center gap-1 text-xs font-bold text-emerald-800">
                     <span className="material-symbols-outlined text-[15px]">event_available</span>
-                    Real-time Quota Sync
+                    {t("realtimeQuotaSync", language)}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
@@ -601,7 +602,7 @@ export default function BookSlotPage() {
                       >
                         <span className="text-sm font-bold text-slate-900">{d.label}</span>
                         <span className={`font-mono text-xs font-bold ${free > 0 ? "text-emerald-700" : "text-red-600"}`}>
-                          {free > 0 ? `${free} slots free` : t("slotsFull", language)}
+                          {free > 0 ? `${free} ${t("slotsFreeCount", language)}` : t("slotsFull", language)}
                         </span>
                       </button>
                     );
@@ -630,7 +631,7 @@ export default function BookSlotPage() {
                     );
                   })}
                   {day && (capacityByDate[day] ?? []).length === 0 && (
-                    <p className="text-sm text-slate-500">No time windows configured for this date.</p>
+                    <p className="text-sm text-slate-500">{t("noTimeWindowsConfigured", language)}</p>
                   )}
                 </div>
               </section>
@@ -693,7 +694,7 @@ export default function BookSlotPage() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-600">MSP Rate</span>
+                  <span className="text-slate-600">{t("mspRateLabel", language)}</span>
                   <span className="font-mono font-bold text-emerald-900">₹{mspRate(crop).toLocaleString("en-IN")}/Qtl</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-emerald-50 p-2.5 text-sm">

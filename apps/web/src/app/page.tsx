@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import type { Language } from "@fasal-slot/types";
 import { useAuth } from "@/lib/auth-context";
+import { LANGUAGES, t } from "@/lib/i18n";
 
 type Role = "farmer" | "agent" | "official";
 
@@ -46,6 +48,7 @@ function dashboardPathFor(role: string): string {
 export default function LandingPage() {
   const { status, user } = useAuth();
   const [role, setRole] = useState<Role>("farmer");
+  const [language, setLanguage] = useState<Language>("en");
   const isAuthenticated = status === "authenticated" && !!user;
 
   return (
@@ -102,15 +105,20 @@ export default function LandingPage() {
             </a>
 
             <div className="flex items-center rounded-xl border border-slate-200 bg-slate-100/90 p-1 text-xs font-bold text-slate-600">
-              <button type="button" className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-extrabold text-emerald-900 shadow-sm">
-                English
-              </button>
-              <button type="button" className="rounded-lg px-2.5 py-1 transition-colors hover:text-slate-900">
-                ਪੰਜਾਬੀ
-              </button>
-              <button type="button" className="rounded-lg px-2.5 py-1 transition-colors hover:text-slate-900">
-                हिन्दी
-              </button>
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  onClick={() => setLanguage(lang.code)}
+                  className={`rounded-lg px-2.5 py-1 transition-colors ${
+                    language === lang.code
+                      ? "border border-slate-200 bg-white font-extrabold text-emerald-900 shadow-sm"
+                      : "hover:text-slate-900"
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -306,10 +314,10 @@ export default function LandingPage() {
                 <div className="mb-1.5 flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
-                      {isAuthenticated ? "Welcome back" : "Sign In"}
+                      {isAuthenticated ? t("welcomeBack", language) : t("signIn", language)}
                     </h2>
                     <p className="mt-0.5 text-xs font-medium text-slate-500">
-                      {isAuthenticated ? `Signed in as ${user!.name}` : "Select your role to continue"}
+                      {isAuthenticated ? `${t("signedInAs", language)} ${user!.name}` : t("selectRolePrompt", language)}
                     </p>
                   </div>
                   <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-emerald-200/80 bg-emerald-50 text-emerald-800">
@@ -322,14 +330,14 @@ export default function LandingPage() {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3">
                     <span className="material-symbols-outlined text-emerald-700">check_circle</span>
-                    <p className="text-xs text-slate-600">You&apos;re already signed in. Jump back into your dashboard.</p>
+                    <p className="text-xs text-slate-600">{t("alreadySignedIn", language)}</p>
                   </div>
                   <Link
                     href={dashboardPathFor(user.role)}
                     className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-800 to-emerald-700 text-base font-bold text-white shadow-lg transition-all hover:from-emerald-900 hover:to-emerald-800 hover:shadow-xl active:scale-[0.99] sm:text-lg"
                   >
                     <span className="material-symbols-outlined text-[22px]">arrow_forward</span>
-                    <span>Go to Dashboard</span>
+                    <span>{t("goToDashboard", language)}</span>
                   </Link>
                 </div>
               ) : (
@@ -347,8 +355,14 @@ export default function LandingPage() {
                         }`}
                       >
                         <span className="material-symbols-outlined mb-0.5 text-[19px]">{tab.icon}</span>
-                        <span className="leading-tight">{tab.labelPa}</span>
-                        <span className="text-[10px] font-medium leading-tight opacity-90">{tab.labelEn}</span>
+                        <span className="leading-tight">
+                          {tab.key === "farmer"
+                            ? t("roleFarmerVernacular", language)
+                            : tab.key === "agent"
+                            ? t("roleAgentVernacular", language)
+                            : t("roleOfficialVernacular", language)}
+                        </span>
+                        {language !== "en" && <span className="text-[10px] font-medium leading-tight opacity-90">{tab.labelEn}</span>}
                       </button>
                     ))}
                   </div>
@@ -357,14 +371,14 @@ export default function LandingPage() {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3">
                     <span className="material-symbols-outlined text-emerald-700">call</span>
-                    <p className="text-xs text-slate-600">Sign in with your registered mobile number and a one-time code sent by SMS.</p>
+                    <p className="text-xs text-slate-600">{t("farmerSignInHint", language)}</p>
                   </div>
                   <Link
                     href="/login?as=farmer"
                     className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-800 to-emerald-700 text-base font-bold text-white shadow-lg transition-all hover:from-emerald-900 hover:to-emerald-800 hover:shadow-xl active:scale-[0.99] sm:text-lg"
                   >
                     <span className="material-symbols-outlined text-[22px]">login</span>
-                    <span>Continue as Farmer</span>
+                    <span>{t("continueAsFarmer", language)}</span>
                   </Link>
                 </div>
               )}
@@ -373,14 +387,14 @@ export default function LandingPage() {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3">
                     <span className="material-symbols-outlined text-emerald-700">badge</span>
-                    <p className="text-xs text-slate-600">Sign in with your Arhtiya mandi license number, phone, and security MPIN.</p>
+                    <p className="text-xs text-slate-600">{t("agentSignInHint", language)}</p>
                   </div>
                   <Link
                     href="/login?as=agent"
                     className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-800 to-emerald-700 text-base font-bold text-white shadow-lg transition-all hover:from-emerald-900 hover:to-emerald-800 hover:shadow-xl active:scale-[0.99]"
                   >
                     <span className="material-symbols-outlined text-[20px]">store</span>
-                    <span>Continue as Agent</span>
+                    <span>{t("continueAsAgent", language)}</span>
                   </Link>
                 </div>
               )}
@@ -389,14 +403,14 @@ export default function LandingPage() {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3">
                     <span className="material-symbols-outlined text-emerald-700">shield</span>
-                    <p className="text-xs text-slate-600">Sign in with your official SSO email, password, and 2-factor security token.</p>
+                    <p className="text-xs text-slate-600">{t("officialSignInHint", language)}</p>
                   </div>
                   <Link
                     href="/login?as=official"
                     className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-800 to-emerald-700 text-base font-bold text-white shadow-lg transition-all hover:from-emerald-900 hover:to-emerald-800 hover:shadow-xl active:scale-[0.99]"
                   >
                     <span className="material-symbols-outlined text-[20px]">shield</span>
-                    <span>Continue as Official</span>
+                    <span>{t("continueAsOfficial", language)}</span>
                   </Link>
                 </div>
               )}
@@ -405,7 +419,7 @@ export default function LandingPage() {
 
               <div className="mt-6 flex items-center justify-center gap-2 border-t border-slate-100 pt-4 text-center">
                 <span className="material-symbols-outlined text-[16px] text-slate-400">verified</span>
-                <p className="text-[11px] font-medium text-slate-500">Your slot, queue position, and payment status — always visible.</p>
+                <p className="text-[11px] font-medium text-slate-500">{t("slotStatusAlwaysVisible", language)}</p>
               </div>
             </div>
           </div>

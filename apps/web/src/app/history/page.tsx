@@ -42,7 +42,7 @@ export default function HistoryPage() {
       </header>
 
       <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-5">
-        {bookings === null && <p className="text-sm text-slate-500">Loading…</p>}
+        {bookings === null && <p className="text-sm text-slate-500">{t("loadingGeneric", language)}</p>}
         {bookings && bookings.length === 0 && (
           <p className="text-sm font-bold text-slate-800">{t("noBookingHistory", language)}</p>
         )}

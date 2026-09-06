@@ -10,6 +10,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "phone must be a 10-digit number" }, { status: 400 });
   }
 
-  await requestOtp(phone);
-  return NextResponse.json({ expires_in: OTP_TTL_SECONDS });
+  // No SMS provider is connected, so the OTP is returned directly instead of
+  // being sent by text — the login screen displays it for the farmer to enter.
+  const otp = await requestOtp(phone);
+  return NextResponse.json({ expires_in: OTP_TTL_SECONDS, otp });
 }

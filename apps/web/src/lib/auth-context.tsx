@@ -16,8 +16,8 @@ type Status = "loading" | "authenticated" | "unauthenticated";
 interface AuthContextValue {
   status: Status;
   user: AuthUser | null;
-  requestOtp: (phone: string) => Promise<void>;
-  verifyOtp: (phone: string, otp: string, language?: Language) => Promise<void>;
+  requestOtp: (phone: string) => Promise<string>;
+  verifyOtp: (phone: string, otp: string, language?: Language) => Promise<AuthUser>;
   loginWithPassword: (email: string, password: string, token?: string) => Promise<void>;
   loginAsAgent: (licenseNumber: string, phone: string, mpin: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -72,10 +72,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refresh, clearSession, setSession]);
 
   const requestOtp = useCallback(async (phone: string) => {
-    await apiJson("/auth/otp/request", {
+    // No SMS provider is connected — the API returns the OTP directly so the
+    // caller can display it on screen instead of it arriving by text.
+    const { otp } = await apiJson<{ expires_in: number; otp: string }>("/auth/otp/request", {
       method: "POST",
       body: JSON.stringify({ phone }),
     });
+    return otp;
   }, []);
 
   const verifyOtp = useCallback(
@@ -95,6 +98,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           body: JSON.stringify({ language }),
         }).catch(() => {});
       }
+
+      return session.user;
     },
     [setSession]
   );

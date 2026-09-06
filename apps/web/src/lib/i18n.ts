@@ -270,6 +270,158 @@ const strings = {
   },
   supportGrievance: { en: "Support & Grievance", hi: "सहायता और शिकायत", pa: "ਸਹਾਇਤਾ ਅਤੇ ਸ਼ਿਕਾਇਤ" },
   backToDashboard: { en: "Back to Dashboard", hi: "डैशबोर्ड पर वापस जाएं", pa: "ਡੈਸ਼ਬੋਰਡ 'ਤੇ ਵਾਪਸ ਜਾਓ" },
+  editProfile: { en: "Edit", hi: "संपादित करें", pa: "ਸੋਧੋ" },
+  saveChanges: { en: "Save Changes", hi: "बदलाव सहेजें", pa: "ਬਦਲਾਅ ਸੰਭਾਲੋ" },
+  cancelEdit: { en: "Cancel", hi: "रद्द करें", pa: "ਰੱਦ ਕਰੋ" },
+  nameLabel: { en: "Full Name", hi: "पूरा नाम", pa: "ਪੂਰਾ ਨਾਮ" },
+  villageLabel: { en: "Village", hi: "गांव", pa: "ਪਿੰਡ" },
+  districtLabel: { en: "District", hi: "ज़िला", pa: "ਜ਼ਿਲ੍ਹਾ" },
+  stateLabel: { en: "State", hi: "राज्य", pa: "ਸੂਬਾ" },
+  onboardingTitle: { en: "Welcome! Let's set up your profile", hi: "स्वागत है! अपनी प्रोफ़ाइल तैयार करें", pa: "ਜੀ ਆਇਆਂ ਨੂੰ! ਆਪਣੀ ਪ੍ਰੋਫਾਈਲ ਤਿਆਰ ਕਰੋ" },
+  onboardingSubtitle: {
+    en: "A few details so we can show your slot, queue, and payment status correctly.",
+    hi: "आपका स्लॉट, कतार और भुगतान की स्थिति सही दिखाने के लिए कुछ जानकारी चाहिए।",
+    pa: "ਤੁਹਾਡਾ ਸਲਾਟ, ਕਤਾਰ ਅਤੇ ਭੁਗਤਾਨ ਸਥਿਤੀ ਸਹੀ ਦਿਖਾਉਣ ਲਈ ਕੁਝ ਜਾਣਕਾਰੀ ਚਾਹੀਦੀ ਹੈ।",
+  },
+  continueToDashboard: { en: "Continue to Dashboard", hi: "डैशबोर्ड पर जाएं", pa: "ਡੈਸ਼ਬੋਰਡ 'ਤੇ ਜਾਓ" },
+  nameRequiredError: { en: "Please enter your name", hi: "कृपया अपना नाम दर्ज करें", pa: "ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ ਨਾਮ ਦਰਜ ਕਰੋ" },
+  profileUpdateFailed: {
+    en: "Could not save changes, please try again",
+    hi: "बदलाव सहेजे नहीं जा सके, कृपया फिर कोशिश करें",
+    pa: "ਬਦਲਾਅ ਸੰਭਾਲੇ ਨਹੀਂ ਜਾ ਸਕੇ, ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  },
+
+  // Shared navigation / loading
+  dashboardNav: { en: "Dashboard", hi: "डैशबोर्ड", pa: "ਡੈਸ਼ਬੋਰਡ" },
+  welcomeBack: { en: "Welcome back", hi: "वापसी पर स्वागत है", pa: "ਵਾਪਸੀ 'ਤੇ ਜੀ ਆਇਆਂ ਨੂੰ" },
+  signedInAs: { en: "Signed in as", hi: "इस रूप में साइन इन हैं:", pa: "ਇਸ ਵਜੋਂ ਸਾਈਨ ਇਨ ਹੋ:" },
+  alreadySignedIn: {
+    en: "You're already signed in. Jump back into your dashboard.",
+    hi: "आप पहले से साइन इन हैं। अपने डैशबोर्ड पर वापस जाएं।",
+    pa: "ਤੁਸੀਂ ਪਹਿਲਾਂ ਹੀ ਸਾਈਨ ਇਨ ਹੋ। ਆਪਣੇ ਡੈਸ਼ਬੋਰਡ 'ਤੇ ਵਾਪਸ ਜਾਓ।",
+  },
+  goToDashboard: { en: "Go to Dashboard", hi: "डैशबोर्ड पर जाएं", pa: "ਡੈਸ਼ਬੋਰਡ 'ਤੇ ਜਾਓ" },
+  continueAsFarmer: { en: "Continue as Farmer", hi: "किसान के रूप में जारी रखें", pa: "ਕਿਸਾਨ ਵਜੋਂ ਜਾਰੀ ਰੱਖੋ" },
+  continueAsAgent: { en: "Continue as Agent", hi: "एजेंट के रूप में जारी रखें", pa: "ਏਜੰਟ ਵਜੋਂ ਜਾਰੀ ਰੱਖੋ" },
+  continueAsOfficial: { en: "Continue as Official", hi: "अधिकारी के रूप में जारी रखें", pa: "ਅਧਿਕਾਰੀ ਵਜੋਂ ਜਾਰੀ ਰੱਖੋ" },
+  farmerSignInHint: {
+    en: "Sign in with your registered mobile number and a one-time code sent by SMS.",
+    hi: "अपने पंजीकृत मोबाइल नंबर और SMS से भेजे गए एक बार के कोड से साइन इन करें।",
+    pa: "ਆਪਣੇ ਰਜਿਸਟਰਡ ਮੋਬਾਈਲ ਨੰਬਰ ਅਤੇ SMS ਰਾਹੀਂ ਭੇਜੇ ਕੋਡ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ।",
+  },
+  agentSignInHint: {
+    en: "Sign in with your Arhtiya mandi license number, phone, and security MPIN.",
+    hi: "अपने आढ़ती मंडी लाइसेंस नंबर, फ़ोन और सुरक्षा MPIN से साइन इन करें।",
+    pa: "ਆਪਣੇ ਆੜ੍ਹਤੀਆ ਮੰਡੀ ਲਾਇਸੈਂਸ ਨੰਬਰ, ਫ਼ੋਨ ਅਤੇ ਸੁਰੱਖਿਆ MPIN ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ।",
+  },
+  officialSignInHint: {
+    en: "Sign in with your official SSO email, password, and 2-factor security token.",
+    hi: "अपने आधिकारिक SSO ईमेल, पासवर्ड और 2-फ़ैक्टर सुरक्षा टोकन से साइन इन करें।",
+    pa: "ਆਪਣੇ ਅਧਿਕਾਰਤ SSO ਈਮੇਲ, ਪਾਸਵਰਡ ਅਤੇ 2-ਫੈਕਟਰ ਸੁਰੱਖਿਆ ਟੋਕਨ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ।",
+  },
+  slotStatusAlwaysVisible: {
+    en: "Your slot, queue position, and payment status — always visible.",
+    hi: "आपका स्लॉट, कतार स्थिति और भुगतान स्थिति — हमेशा दिखाई देगी।",
+    pa: "ਤੁਹਾਡਾ ਸਲਾਟ, ਕਤਾਰ ਸਥਿਤੀ ਅਤੇ ਭੁਗਤਾਨ ਸਥਿਤੀ — ਹਮੇਸ਼ਾ ਦਿਖਾਈ ਦੇਵੇਗੀ।",
+  },
+  loadingGeneric: { en: "Loading…", hi: "लोड हो रहा है…", pa: "ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…" },
+  loadingCentres: { en: "Loading centres…", hi: "केंद्र लोड हो रहे हैं…", pa: "ਕੇਂਦਰ ਲੋਡ ਹੋ ਰਹੇ ਹਨ…" },
+  callButton: { en: "Call", hi: "कॉल करें", pa: "ਕਾਲ ਕਰੋ" },
+
+  // Farmer home — illustrative badges & sections
+  verifiedGrower: { en: "Verified Grower", hi: "सत्यापित किसान", pa: "ਤਸਦੀਕਸ਼ੁਦਾ ਕਿਸਾਨ" },
+  aadhaarDbtReady: { en: "Aadhaar DBT Ready", hi: "आधार DBT तैयार", pa: "ਆਧਾਰ DBT ਤਿਆਰ" },
+  registeredLand: { en: "Registered Land", hi: "पंजीकृत भूमि", pa: "ਰਜਿਸਟਰਡ ਜ਼ਮੀਨ" },
+  wheatMspRate: { en: "Wheat MSP Rate", hi: "गेहूं MSP दर", pa: "ਕਣਕ MSP ਦਰ" },
+  trolleysAheadInLine: { en: "4 Trolleys Ahead in Line", hi: "लाइन में 4 ट्रॉलियां आगे हैं", pa: "ਲਾਈਨ ਵਿੱਚ 4 ਟਰਾਲੀਆਂ ਅੱਗੇ ਹਨ" },
+  trolleysAheadAtWeighbridge: {
+    en: "4 Trolleys Ahead at Weighbridge",
+    hi: "वेटब्रिज पर 4 ट्रॉलियां आगे हैं",
+    pa: "ਵੇਅਬ੍ਰਿਜ 'ਤੇ 4 ਟਰਾਲੀਆਂ ਅੱਗੇ ਹਨ",
+  },
+  estimatedWait35: { en: "Estimated wait: ~35 mins", hi: "अनुमानित प्रतीक्षा: ~35 मिनट", pa: "ਅਨੁਮਾਨਿਤ ਉਡੀਕ: ~35 ਮਿੰਟ" },
+  turnTime: { en: "Turn Time", hi: "बारी का समय", pa: "ਵਾਰੀ ਦਾ ਸਮਾਂ" },
+  liveAndVerified: { en: "Live & Verified", hi: "लाइव और सत्यापित", pa: "ਲਾਈਵ ਅਤੇ ਤਸਦੀਕਸ਼ੁਦਾ" },
+  todaysMandiStatus: { en: "Today's Mandi Status", hi: "आज की मंडी स्थिति", pa: "ਅੱਜ ਦੀ ਮੰਡੀ ਸਥਿਤੀ" },
+  yardFlow: { en: "Yard Flow", hi: "यार्ड प्रवाह", pa: "ਯਾਰਡ ਵਹਾਅ" },
+  yardFlowNormal: { en: "Normal (40% Cap)", hi: "सामान्य (40% क्षमता)", pa: "ਸਧਾਰਨ (40% ਸਮਰੱਥਾ)" },
+  avgClearance: { en: "Avg. Clearance", hi: "औसत निकासी", pa: "ਔਸਤ ਨਿਪਟਾਰਾ" },
+  avgClearanceValue: { en: "42 Mins / Trolley", hi: "42 मिनट / ट्रॉली", pa: "42 ਮਿੰਟ / ਟਰਾਲੀ" },
+  currentWaitClearance: {
+    en: "Current wait ~42 mins/trolley.",
+    hi: "वर्तमान प्रतीक्षा ~42 मिनट/ट्रॉली।",
+    pa: "ਮੌਜੂਦਾ ਉਡੀਕ ~42 ਮਿੰਟ/ਟਰਾਲੀ।",
+  },
+  gunnyBagsAvailable: {
+    en: "Gunny bags fully available.",
+    hi: "बारदाना पूरी तरह उपलब्ध है।",
+    pa: "ਬਾਰਦਾਨਾ ਪੂਰੀ ਤਰ੍ਹਾਂ ਉਪਲਬਧ ਹੈ।",
+  },
+  moistureNormTitle: { en: "Moisture Norm: Max 12.0%", hi: "नमी मानक: अधिकतम 12.0%", pa: "ਨਮੀ ਮਾਪਦੰਡ: ਵੱਧ ਤੋਂ ਵੱਧ 12.0%" },
+  moistureNormBody: {
+    en: "Government mandate: max 12% moisture for instant acceptance. Pre-dry grain before loading to avoid gate rejection.",
+    hi: "सरकारी नियम: तुरंत स्वीकृति के लिए अधिकतम 12% नमी। गेट पर अस्वीकृति से बचने के लिए लोड करने से पहले अनाज को सुखा लें।",
+    pa: "ਸਰਕਾਰੀ ਹੁਕਮ: ਤੁਰੰਤ ਪ੍ਰਵਾਨਗੀ ਲਈ ਵੱਧ ਤੋਂ ਵੱਧ 12% ਨਮੀ। ਗੇਟ 'ਤੇ ਰੱਦ ਹੋਣ ਤੋਂ ਬਚਣ ਲਈ ਲੋਡ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਅਨਾਜ ਸੁਕਾ ਲਓ।",
+  },
+  offlineSmsBooking: { en: "Offline SMS Booking", hi: "ऑफ़लाइन SMS बुकिंग", pa: "ਆਫਲਾਈਨ SMS ਬੁਕਿੰਗ" },
+  offlineSmsSend: { en: "Send", hi: "भेजें", pa: "ਭੇਜੋ" },
+  offlineSmsTo: { en: "to", hi: "इस नंबर पर", pa: "ਇਸ ਨੰਬਰ 'ਤੇ" },
+  kisanHelpline24x7: { en: "24x7 Kisan Helpline", hi: "24x7 किसान हेल्पलाइन", pa: "24x7 ਕਿਸਾਨ ਹੈਲਪਲਾਈਨ" },
+  mspRateLabel: { en: "MSP Rate", hi: "MSP दर", pa: "MSP ਦਰ" },
+  bookWithoutInternet: { en: "Book without internet:", hi: "बिना इंटरनेट बुक करें:", pa: "ਬਿਨਾਂ ਇੰਟਰਨੈੱਟ ਬੁੱਕ ਕਰੋ:" },
+  moisturePercentCol: { en: "Moisture %", hi: "नमी %", pa: "ਨਮੀ %" },
+  paidViaDbtPrefix: { en: "Paid via DBT", hi: "DBT द्वारा भुगतान", pa: "DBT ਰਾਹੀਂ ਭੁਗਤਾਨ" },
+  landRegisteredNote: {
+    en: "12 Acres registered · Wheat (RMS 2026-27)",
+    hi: "12 एकड़ पंजीकृत · गेहूं (RMS 2026-27)",
+    pa: "12 ਏਕੜ ਰਜਿਸਟਰਡ · ਕਣਕ (RMS 2026-27)",
+  },
+  footerPortalName: { en: "Fasal Slot Portal RMS 2026-27", hi: "फसल स्लॉट पोर्टल RMS 2026-27", pa: "ਫਸਲ ਸਲਾਟ ਪੋਰਟਲ RMS 2026-27" },
+  footerNicBoard: {
+    en: "National Informatics Centre (NIC) & State Mandi Board",
+    hi: "राष्ट्रीय सूचना विज्ञान केंद्र (NIC) और राज्य मंडी बोर्ड",
+    pa: "ਨੈਸ਼ਨਲ ਇਨਫਾਰਮੈਟਿਕਸ ਸੈਂਟਰ (NIC) ਅਤੇ ਰਾਜ ਮੰਡੀ ਬੋਰਡ",
+  },
+  footerUidaiPfms: { en: "UIDAI & PFMS DBT Certified", hi: "UIDAI और PFMS DBT प्रमाणित", pa: "UIDAI ਅਤੇ PFMS DBT ਪ੍ਰਮਾਣਿਤ" },
+  footerTollFree: { en: "Toll-Free", hi: "टोल-फ्री", pa: "ਟੋਲ-ਫ੍ਰੀ" },
+
+  // Profile page extras
+  projectedValueRemaining: {
+    en: "Projected Value (Remaining)",
+    hi: "अनुमानित मूल्य (शेष)",
+    pa: "ਅਨੁਮਾਨਿਤ ਮੁੱਲ (ਬਾਕੀ)",
+  },
+  usedForPrefix: { en: "Used for", hi: "इसके लिए इस्तेमाल", pa: "ਇਸ ਲਈ ਵਰਤੀ" },
+  illustrativeSuffix: { en: "illustrative", hi: "उदाहरण मात्र", pa: "ਉਦਾਹਰਨ ਮਾਤਰ" },
+
+  // Booking flow extras
+  noCentresForCrop: {
+    en: "No centres available for this crop.",
+    hi: "इस फसल के लिए कोई केंद्र उपलब्ध नहीं है।",
+    pa: "ਇਸ ਫ਼ਸਲ ਲਈ ਕੋਈ ਕੇਂਦਰ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।",
+  },
+  realtimeQuotaSync: { en: "Real-time Quota Sync", hi: "रीयल-टाइम कोटा सिंक", pa: "ਰੀਅਲ-ਟਾਈਮ ਕੋਟਾ ਸਿੰਕ" },
+  noTimeWindowsConfigured: {
+    en: "No time windows configured for this date.",
+    hi: "इस तारीख़ के लिए कोई समय स्लॉट सेट नहीं है।",
+    pa: "ਇਸ ਮਿਤੀ ਲਈ ਕੋਈ ਸਮਾਂ ਸਲਾਟ ਸੈੱਟ ਨਹੀਂ ਹੈ।",
+  },
+  slotsFreeCount: { en: "slots free", hi: "स्लॉट खाली", pa: "ਸਲਾਟ ਖਾਲੀ" },
+
+  // Reschedule flow extras
+  mandatoryBadge: { en: "Mandatory", hi: "अनिवार्य", pa: "ਲਾਜ਼ਮੀ" },
+  remainsLockedSuffix: { en: "remains securely locked.", hi: "सुरक्षित रूप से लॉक है।", pa: "ਸੁਰੱਖਿਅਤ ਢੰਗ ਨਾਲ ਲਾਕ ਹੈ।" },
+  timeLeftToShift: { en: "Time Left to Shift", hi: "बदलाव के लिए बचा समय", pa: "ਤਬਦੀਲੀ ਲਈ ਬਾਕੀ ਸਮਾਂ" },
+  willReplace: { en: "Will Replace", hi: "बदल दिया जाएगा", pa: "ਬਦਲ ਦਿੱਤਾ ਜਾਵੇਗਾ" },
+  loadLabel: { en: "Load", hi: "मात्रा", pa: "ਮਾਤਰਾ" },
+  comparisonLabel: { en: "Comparison", hi: "तुलना", pa: "ਤੁਲਨਾ" },
+  zeroPenalty: { en: "Zero Penalty", hi: "कोई जुर्माना नहीं", pa: "ਕੋਈ ਜੁਰਮਾਨਾ ਨਹੀਂ" },
+  bookingNotFound: { en: "Booking not found.", hi: "बुकिंग नहीं मिली।", pa: "ਬੁਕਿੰਗ ਨਹੀਂ ਮਿਲੀ।" },
+  cannotRescheduleAnymore: {
+    en: "This slot can no longer be rescheduled.",
+    hi: "यह स्लॉट अब पुनर्निर्धारित नहीं किया जा सकता।",
+    pa: "ਇਹ ਸਲਾਟ ਹੁਣ ਮੁੜ-ਤਹਿ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ।",
+  },
 } as const;
 
 export type StringKey = keyof typeof strings;

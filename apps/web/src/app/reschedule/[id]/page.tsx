@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import type { Booking, Centre, CentreCapacityWithAvailability, Language } from "@fasal-slot/types";
 import { useAuth } from "@/lib/auth-context";
 import { useFarmerProfile } from "@/lib/useFarmerProfile";
@@ -193,25 +194,25 @@ export default function ReschedulePage() {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.error ?? "Something went wrong, please try again");
+        setError(body.error ?? t("somethingWrong", language));
         return;
       }
       router.replace("/home");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong, please try again");
+      setError(err instanceof ApiError ? err.message : t("somethingWrong", language));
     } finally {
       setSubmitting(false);
     }
   }
 
   if (loadError) {
-    return <CenteredMessage>Booking not found.</CenteredMessage>;
+    return <CenteredMessage>{t("bookingNotFound", language)}</CenteredMessage>;
   }
   if (!booking) {
-    return <CenteredMessage>Loading…</CenteredMessage>;
+    return <CenteredMessage>{t("loadingGeneric", language)}</CenteredMessage>;
   }
   if (booking.stage !== "booked") {
-    return <CenteredMessage>This slot can no longer be rescheduled.</CenteredMessage>;
+    return <CenteredMessage>{t("cannotRescheduleAnymore", language)}</CenteredMessage>;
   }
 
   return (
@@ -219,7 +220,7 @@ export default function ReschedulePage() {
       <header className="sticky top-0 z-40 w-full border-b border-emerald-900 bg-[#00261d] text-white shadow-md">
         <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-4 px-6">
           <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5">
-            <span className="grid h-9 w-9 shrink-0 rotate-45 place-items-center rounded bg-amber" aria-hidden />
+            <Image src="/fasal-slot-emblem.png" alt="Fasal Slot" width={36} height={36} className="h-9 w-9 shrink-0 object-contain" />
             <div className="flex flex-col leading-none">
               <div className="flex items-center gap-2">
                 <span className="text-lg font-extrabold uppercase tracking-wide text-white">Fasal Slot</span>
@@ -282,7 +283,7 @@ export default function ReschedulePage() {
         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
           <a href="/home" className="flex items-center gap-1 hover:text-emerald-800">
             <span className="material-symbols-outlined text-[16px]">home</span>
-            Dashboard
+            {t("dashboardNav", language)}
           </a>
           <span className="material-symbols-outlined text-[14px] text-slate-300">chevron_right</span>
           <a href="/home" className="hover:text-emerald-800">
@@ -304,7 +305,7 @@ export default function ReschedulePage() {
               {!cutoffPassed && (
                 <p className="mt-0.5 text-xs font-semibold text-emerald-800">
                   {cropLabel(booking.crop, language)}
-                  {booking.quantityQtl != null && ` · ${booking.quantityQtl} Qtl`} remains securely locked.
+                  {booking.quantityQtl != null && ` · ${booking.quantityQtl} Qtl`} {t("remainsLockedSuffix", language)}
                 </p>
               )}
             </div>
@@ -313,7 +314,7 @@ export default function ReschedulePage() {
             <div className="flex shrink-0 items-center gap-3 self-end rounded-lg border border-amber-200 bg-white px-4 py-2.5 shadow-xs md:self-center">
               <span className="material-symbols-outlined text-[24px] text-amber-700">hourglass_top</span>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Time Left to Shift</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t("timeLeftToShift", language)}</span>
                 <span className="font-mono text-lg font-extrabold leading-none text-amber-700">
                   {hoursLeft.toString().padStart(2, "0")}h : {minutesLeft.toString().padStart(2, "0")}m
                 </span>
@@ -341,7 +342,7 @@ export default function ReschedulePage() {
                     <h2 className="text-base font-bold text-slate-900">{t("reasonForShift", language)}</h2>
                   </div>
                   <span className="rounded bg-red-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-red-800">
-                    * Mandatory
+                    * {t("mandatoryBadge", language)}
                   </span>
                 </div>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -369,7 +370,7 @@ export default function ReschedulePage() {
                   </div>
                   <span className="flex items-center gap-1 text-xs font-bold text-emerald-800">
                     <span className="material-symbols-outlined text-[15px]">event_available</span>
-                    Real-time Quota Sync
+                    {t("realtimeQuotaSync", language)}
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
@@ -392,7 +393,7 @@ export default function ReschedulePage() {
                       >
                         <span className="text-sm font-bold text-slate-900">{d.label}</span>
                         <span className={`font-mono text-xs font-bold ${free > 0 ? "text-emerald-700" : "text-red-600"}`}>
-                          {free > 0 ? `${free} slots free` : t("slotsFull", language)}
+                          {free > 0 ? `${free} ${t("slotsFreeCount", language)}` : t("slotsFull", language)}
                         </span>
                       </button>
                     );
@@ -429,7 +430,7 @@ export default function ReschedulePage() {
                     );
                   })}
                   {selectedDay && (capacityByDate[selectedDay] ?? []).length === 0 && (
-                    <p className="text-sm text-slate-500">No time windows configured for this date.</p>
+                    <p className="text-sm text-slate-500">{t("noTimeWindowsConfigured", language)}</p>
                   )}
                 </div>
               </section>
@@ -440,19 +441,19 @@ export default function ReschedulePage() {
               {/* Active pass */}
               <div className="relative overflow-hidden rounded-xl border border-emerald-800/40 bg-gradient-to-br from-emerald-900 to-[#0c3b2d] p-5 text-white shadow-md">
                 <div className="flex items-center justify-between border-b border-white/15 pb-3">
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-200">Active Gate Pass</span>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-200">{t("activeGatePass", language)}</span>
                   <span className="flex items-center gap-1 rounded bg-red-600 px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
                     <span className="material-symbols-outlined text-[13px]">swap_horiz</span>
-                    Will Replace
+                    {t("willReplace", language)}
                   </span>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-2.5">
                   <div className="rounded-lg border border-white/10 bg-white/10 p-2.5">
-                    <span className="block text-[10px] uppercase text-emerald-200">Crop</span>
+                    <span className="block text-[10px] uppercase text-emerald-200">{t("colCrop", language)}</span>
                     <span className="text-sm font-bold">{cropLabel(booking.crop, language)}</span>
                   </div>
                   <div className="rounded-lg border border-white/10 bg-white/10 p-2.5">
-                    <span className="block text-[10px] uppercase text-emerald-200">Load</span>
+                    <span className="block text-[10px] uppercase text-emerald-200">{t("loadLabel", language)}</span>
                     <span className="text-sm font-bold">{booking.quantityQtl != null ? `~${booking.quantityQtl} Qtl` : "—"}</span>
                   </div>
                 </div>
@@ -473,8 +474,8 @@ export default function ReschedulePage() {
               {/* Comparison */}
               <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">Comparison</span>
-                  <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">Zero Penalty</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700">{t("comparisonLabel", language)}</span>
+                  <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">{t("zeroPenalty", language)}</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-slate-50 p-2 text-xs">
                   <span className="text-slate-500">{t("oldSchedule", language)}</span>

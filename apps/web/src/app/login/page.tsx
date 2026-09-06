@@ -35,6 +35,7 @@ function LoginForm() {
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [resendIn, setResendIn] = useState(0);
+  const [displayedOtp, setDisplayedOtp] = useState<string | null>(null);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Agent license login
@@ -100,7 +101,8 @@ function LoginForm() {
     }
     setSubmitting(true);
     try {
-      await requestOtp(phone);
+      const otpValue = await requestOtp(phone);
+      setDisplayedOtp(otpValue);
       setOtpSent(true);
       setOtp(["", "", "", ""]);
       setResendIn(RESEND_SECONDS);
@@ -137,8 +139,11 @@ function LoginForm() {
     const code = otp.join("");
     setSubmitting(true);
     try {
-      await verifyOtp(phone, code, language);
-      router.replace("/home");
+      const loggedInUser = await verifyOtp(phone, code, language);
+      // A brand-new farmer has no name on file yet — send them to onboarding
+      // to enter their real details instead of dropping them on the
+      // dashboard with a blank/placeholder identity.
+      router.replace(loggedInUser.name ? "/home" : "/onboarding");
     } catch (err) {
       setError(err instanceof ApiError && err.status === 401 ? t("invalidOtp", language) : t("somethingWrong", language));
     } finally {
@@ -684,6 +689,27 @@ function LoginForm() {
                   >
                     ← {t("back", language)}
                   </button>
+
+                  {displayedOtp && (
+                    <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 p-3.5">
+                      <div className="flex flex-col">
+                        <span className="text-[11px] font-bold uppercase tracking-wide text-amber-800">
+                          No SMS gateway connected — your code
+                        </span>
+                        <span className="font-mono text-2xl font-black tracking-[0.3em] text-amber-900">{displayedOtp}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOtp(displayedOtp.split(""));
+                          otpRefs.current[3]?.focus();
+                        }}
+                        className="shrink-0 rounded-lg bg-amber-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-amber-700"
+                      >
+                        Fill in
+                      </button>
+                    </div>
+                  )}
 
                   <div className="space-y-2">
                     <label className="block text-xs font-bold text-slate-800">{t("enterOtp", language)} {phone}</label>
